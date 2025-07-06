@@ -67,7 +67,7 @@
                             <div>
                                 <label class="block text-sm font-semibold text-gray-600 mb-2">HORARIO</label>
                                 <p class="text-lg font-medium text-gray-900">
-                                    {{ date('H:i', strtotime($reserva->hora_inicio)) }} - {{ date('H:i', strtotime($reserva->hora_fin)) }}
+                                    {{ $reserva->hora_inicio->format('H:i') }} - {{ $reserva->hora_fin->format('H:i') }}
                                 </p>
                             </div>
                             

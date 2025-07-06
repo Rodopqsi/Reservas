@@ -21,6 +21,8 @@ class Reserva extends Model
 
     protected $casts = [
         'fecha' => 'date',
+        'hora_inicio' => 'datetime:H:i:s',
+        'hora_fin' => 'datetime:H:i:s',
     ];
 
     public function user(): BelongsTo

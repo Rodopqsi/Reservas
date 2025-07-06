@@ -53,7 +53,7 @@
                                 <label for="hora_inicio" class="block text-sm font-medium text-gray-700">
                                     Hora de Inicio
                                 </label>
-                                <input type="time" name="hora_inicio" id="hora_inicio" value="{{ old('hora_inicio', $reserva->hora_inicio) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                                <input type="time" name="hora_inicio" id="hora_inicio" value="{{ old('hora_inicio', $reserva->hora_inicio->format('H:i')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
                             </div>
 
                             <!-- Hora fin -->
@@ -61,7 +61,7 @@
                                 <label for="hora_fin" class="block text-sm font-medium text-gray-700">
                                     Hora de Fin
                                 </label>
-                                <input type="time" name="hora_fin" id="hora_fin" value="{{ old('hora_fin', $reserva->hora_fin) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
+                                <input type="time" name="hora_fin" id="hora_fin" value="{{ old('hora_fin', $reserva->hora_fin->format('H:i')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
                             </div>
 
                             <!-- Motivo -->

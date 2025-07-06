@@ -103,7 +103,6 @@ class ReservaController extends Controller
             'hora_fin' => $request->hora_fin,
             'motivo' => $request->motivo,
             'observaciones' => $request->observaciones,
-            'estado' => 'pendiente', // Estado inicial para nuevas reservas
         ]);
 
         // Crear notificación para administradores (solo si no es admin quien crea la reserva)
@@ -228,8 +227,7 @@ class ReservaController extends Controller
         }
         
         // Verificar que la reserva no sea en el pasado (con al menos 2 horas de anticipación)
-        $fechaSolo = $reserva->fecha instanceof \Carbon\Carbon ? $reserva->fecha->format('Y-m-d') : $reserva->fecha;
-        $fechaReserva = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $fechaSolo . ' ' . $reserva->hora_inicio);
+        $fechaReserva = \Carbon\Carbon::parse($reserva->fecha . ' ' . $reserva->hora_inicio);
         $limiteCancel = \Carbon\Carbon::now()->addHours(2);
         
         if ($fechaReserva->isPast() || $fechaReserva->lte($limiteCancel)) {
@@ -248,8 +246,7 @@ class ReservaController extends Controller
             NotificacionController::crearNotificacionAdmin($reserva, 'reserva_cancelada');
         }
         
-        $fechaMostrar = $reserva->fecha instanceof \Carbon\Carbon ? $reserva->fecha->format('d/m/Y') : \Carbon\Carbon::parse($reserva->fecha)->format('d/m/Y');
-        $mensaje = "Reserva cancelada exitosamente. Aula {$reserva->aula->nombre} liberada para el {$fechaMostrar} de {$reserva->hora_inicio} a {$reserva->hora_fin}.";
+        $mensaje = "Reserva cancelada exitosamente. Aula {$reserva->aula->nombre} liberada para el {$reserva->fecha} de {$reserva->hora_inicio} a {$reserva->hora_fin}.";
         
         return redirect()->back()
             ->with('success', $mensaje);

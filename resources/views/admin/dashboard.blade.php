@@ -97,7 +97,7 @@
                                             </div>
                                             <div class="text-right ml-4">
                                                 <div class="flex gap-2">
-                                                    <form method="POST" action="{{ route('admin.reservas.aprobar', $reserva) }}" class="inline">
+                                                    <form method="POST" action="{{ route('reservas.aprobar', $reserva) }}" class="inline">
                                                         @csrf
                                                         <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm">
                                                             Aprobar
@@ -156,7 +156,7 @@
             const modal = document.getElementById('modalRechazo');
             const form = document.getElementById('formRechazo');
             
-            form.action = `/admin/reservas/${reservaId}/rechazar`;
+            form.action = `/reservas/${reservaId}/rechazar`;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
