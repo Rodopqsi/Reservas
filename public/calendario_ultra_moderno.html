@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Ultra Moderno - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Variables CSS personalizadas */
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-indigo: #6366f1;
+            --primary-purple: #8b5cf6;
+            --primary-emerald: #10b981;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --blur-light: blur(8px);
+            --blur-medium: blur(12px);
+            --blur-heavy: blur(16px);
+        }
+
+        /* Efectos glassmorphism */
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur-medium);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Slot del calendario */
+        .slot-cell {
+            min-height: 68px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slot-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(59, 130, 246, 0.15);
+        }
+        
+        /* Contenido del slot */
+        .slot-content {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slot-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .slot-content:hover::before {
+            transform: translateX(100%);
+        }
+        
+        .slot-content:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Botones con efectos modernos */
+        .btn-modern {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+        
+        .btn-modern:hover::before {
+            transform: translateX(100%);
+        }
+        
+        /* Animaciones suaves */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        /* Efectos de hover avanzados */
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-indigo));
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--primary-indigo), var(--primary-purple));
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                Calendario Ultra Moderno
+            </h1>
+            <p class="text-slate-600 text-lg">Nueva versión con estilo minimalista y efectos glassmorphism</p>
+        </div>
+
+        <!-- Header ultra moderno con glassmorphism -->
+        <div class="bg-white/70 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl mb-6 overflow-hidden fade-in">
+            <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <!-- Título y descripción mejorados -->
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-xl transform hover:scale-105 transition-all duration-300 hover-lift">
+                            <i class="fas fa-calendar-alt text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                                Aula de Informática
+                            </h1>
+                            <p class="text-slate-500 text-sm font-medium">Semana del 15 al 21 de Enero 2024</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Controles de navegación ultra modernos -->
+                    <div class="flex items-center space-x-2">
+                        <button class="btn-modern group w-12 h-12 bg-white/80 backdrop-blur-sm border border-white/40 rounded-2xl hover:bg-white hover:border-blue-200 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105">
+                            <i class="fas fa-chevron-left text-slate-600 group-hover:text-blue-600 transition-colors"></i>
+                        </button>
+                        <button class="btn-modern px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <i class="fas fa-home mr-2"></i>Hoy
+                        </button>
+                        <button class="btn-modern group w-12 h-12 bg-white/80 backdrop-blur-sm border border-white/40 rounded-2xl hover:bg-white hover:border-blue-200 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105">
+                            <i class="fas fa-chevron-right text-slate-600 group-hover:text-blue-600 transition-colors"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Aula ultra moderna -->
+        <div class="bg-white/70 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl mb-6 overflow-hidden fade-in">
+            <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 p-6">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-xl transform hover:scale-105 transition-all duration-300 hover-lift">
+                            <i class="fas fa-door-open text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                Aula 101
+                            </h2>
+                            <p class="text-slate-500 font-medium">
+                                Semana del 15 al 21 de Enero 2024
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-3">
+                        <div class="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300 hover-lift">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-users text-blue-600"></i>
+                                <span class="text-blue-800 font-bold">30 personas</span>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50 rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300 hover-lift">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-map-marker-alt text-emerald-600"></i>
+                                <span class="text-emerald-800 font-bold">Planta Baja</span>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/50 rounded-2xl backdrop-blur-sm transform hover:scale-105 transition-all duration-300 hover-lift">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-tag text-amber-600"></i>
+                                <span class="text-amber-800 font-bold">INFO-101</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendario ultra moderno -->
+        <div class="bg-white/70 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl overflow-hidden fade-in">
+            <!-- Header del calendario con gradiente futurista -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-white/15 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/20">
+                            <i class="fas fa-calendar-week text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold">Aula 101</h3>
+                            <p class="text-slate-300 text-sm">15 Ene - 21 Ene 2024</p>
+                        </div>
+                    </div>
+                    <button class="btn-modern group px-5 py-3 bg-white/15 hover:bg-white/25 border border-white/20 rounded-2xl transition-all duration-300 flex items-center space-x-2 backdrop-blur-sm">
+                        <i class="fas fa-sync-alt group-hover:rotate-180 transition-transform duration-500"></i>
+                        <span class="font-semibold">Actualizar</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Leyenda ultra moderna -->
+            <div class="bg-gradient-to-r from-slate-50 via-white to-blue-50 px-6 py-4 border-b border-slate-100">
+                <div class="flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-6 text-sm">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg"></div>
+                            <span class="text-slate-700 font-semibold">Disponible</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full shadow-lg"></div>
+                            <span class="text-slate-700 font-semibold">Reservado</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-br from-violet-500 to-violet-600 rounded-full shadow-lg"></div>
+                            <span class="text-slate-700 font-semibold">Seleccionado</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-4 h-4 bg-gradient-to-br from-amber-500 to-amber-600 rounded-full shadow-lg"></div>
+                            <span class="text-slate-700 font-semibold">Pendiente</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-sm text-slate-600 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-2xl shadow-lg border border-slate-200">
+                        <i class="fas fa-clock text-blue-500"></i>
+                        <span class="font-semibold">15/01/2024 14:30</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles de selección ultra modernos -->
+            <div class="bg-gradient-to-r from-violet-50 via-purple-50 to-indigo-50 border border-violet-200/50 p-5 m-6 rounded-3xl backdrop-blur-sm shadow-xl">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <i class="fas fa-hand-pointer text-white"></i>
+                        </div>
+                        <div>
+                            <span class="text-violet-800 font-bold text-lg">2 horas seleccionadas</span>
+                            <p class="text-violet-600 text-sm">Haz click en "Reservar" para continuar</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button class="btn-modern px-4 py-2 text-violet-600 hover:text-violet-700 hover:bg-violet-100 rounded-xl transition-all duration-200 font-medium">
+                            <i class="fas fa-trash-alt mr-2"></i>Limpiar
+                        </button>
+                        <button class="btn-modern px-6 py-3 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-2xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center space-x-2 transform hover:scale-105">
+                            <i class="fas fa-check"></i>
+                            <span>Reservar Selección</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid del calendario ultra moderno -->
+            <div class="p-2">
+                <div class="grid grid-cols-8 gap-1 bg-slate-200/50 p-2 rounded-2xl">
+                    <!-- Header de horarios -->
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl flex items-center justify-center shadow-sm">
+                        <div class="text-center">
+                            <i class="fas fa-clock text-slate-600 mb-2"></i>
+                            <div class="text-sm font-bold text-slate-800">Horario</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Headers de días -->
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">LUN</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">15</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">MAR</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">16</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">MIE</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">17</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">JUE</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">18</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">VIE</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">19</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">SAB</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">20</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-slate-100 to-slate-200 p-4 rounded-2xl text-center shadow-sm">
+                        <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DOM</div>
+                        <div class="text-2xl font-bold text-slate-800 mb-1">21</div>
+                        <div class="text-xs text-slate-500 font-medium">ENE</div>
+                    </div>
+                    
+                    <!-- Fila de ejemplo - 08:00 -->
+                    <div class="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-2xl flex items-center justify-center shadow-sm">
+                        <div class="text-center">
+                            <div class="text-sm font-bold text-slate-800">08:00</div>
+                            <div class="text-xs text-slate-500">09:00</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slot disponible -->
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400 hover:from-blue-600 hover:to-blue-700 hover:border-blue-500 transition-all duration-300 flex items-center justify-center slot-content group-hover:shadow-lg text-white transform group-hover:scale-105">
+                            <div class="text-center">
+                                <i class="fas fa-plus text-lg group-hover:text-xl transition-all duration-300"></i>
+                                <div class="text-xs font-medium mt-1 group-hover:text-sm transition-all duration-300">Disponible</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slot reservado -->
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="text-xs font-bold truncate">Juan Pérez</div>
+                                    <div class="text-xs opacity-90 truncate mt-1">Clase Python</div>
+                                </div>
+                                <div class="flex justify-between items-end mt-2">
+                                    <i class="fas fa-check text-xs" title="Aprobada"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slot seleccionado -->
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200" style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border: 2px solid rgba(147, 51, 234, 0.3) !important;">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-violet-500 text-white flex items-center justify-center slot-content shadow-lg transform scale-98">
+                            <div class="text-center">
+                                <i class="fas fa-check text-xl"></i>
+                                <div class="text-xs font-medium mt-1">Seleccionado</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Slot pendiente -->
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white p-3 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            <div class="flex flex-col h-full justify-between">
+                                <div>
+                                    <div class="text-xs font-bold truncate">Ana García</div>
+                                    <div class="text-xs opacity-90 truncate mt-1">Reunión</div>
+                                </div>
+                                <div class="flex justify-between items-end mt-2">
+                                    <i class="fas fa-clock text-xs" title="Pendiente"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Más slots disponibles -->
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400 hover:from-blue-600 hover:to-blue-700 hover:border-blue-500 transition-all duration-300 flex items-center justify-center slot-content group-hover:shadow-lg text-white transform group-hover:scale-105">
+                            <div class="text-center">
+                                <i class="fas fa-plus text-lg group-hover:text-xl transition-all duration-300"></i>
+                                <div class="text-xs font-medium mt-1 group-hover:text-sm transition-all duration-300">Disponible</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400 hover:from-blue-600 hover:to-blue-700 hover:border-blue-500 transition-all duration-300 flex items-center justify-center slot-content group-hover:shadow-lg text-white transform group-hover:scale-105">
+                            <div class="text-center">
+                                <i class="fas fa-plus text-lg group-hover:text-xl transition-all duration-300"></i>
+                                <div class="text-xs font-medium mt-1 group-hover:text-sm transition-all duration-300">Disponible</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm p-2 min-h-20 cursor-pointer transition-all duration-300 hover:bg-white hover:shadow-lg slot-cell group rounded-2xl border border-transparent hover:border-blue-200">
+                        <div class="h-full rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-blue-400 hover:from-blue-600 hover:to-blue-700 hover:border-blue-500 transition-all duration-300 flex items-center justify-center slot-content group-hover:shadow-lg text-white transform group-hover:scale-105">
+                            <div class="text-center">
+                                <i class="fas fa-plus text-lg group-hover:text-xl transition-all duration-300"></i>
+                                <div class="text-xs font-medium mt-1 group-hover:text-sm transition-all duration-300">Disponible</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Características del nuevo diseño -->
+        <div class="mt-8 bg-white/70 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-6 fade-in">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-4">
+                <i class="fas fa-star text-amber-500 mr-2"></i>
+                Características del Nuevo Diseño
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-magic text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-blue-800">Efectos Glassmorphism</h3>
+                    </div>
+                    <p class="text-blue-700 text-sm">Transparencias y desenfoques modernos para un aspecto futurista</p>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-emerald-800">100% Responsive</h3>
+                    </div>
+                    <p class="text-emerald-700 text-sm">Adaptación perfecta a todos los dispositivos y tamaños</p>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl border border-purple-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-rocket text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-purple-800">Animaciones Fluidas</h3>
+                    </div>
+                    <p class="text-purple-700 text-sm">Transiciones suaves y efectos de hover elegantes</p>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-palette text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-amber-800">Colores Modernos</h3>
+                    </div>
+                    <p class="text-amber-700 text-sm">Paleta de colores actualizada con gradientes vibrantes</p>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl border border-rose-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-eye text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-rose-800">Diseño Minimalista</h3>
+                    </div>
+                    <p class="text-rose-700 text-sm">Interfaz limpia y enfocada en la funcionalidad</p>
+                </div>
+                
+                <div class="p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl border border-cyan-200/50">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-bolt text-white text-sm"></i>
+                        </div>
+                        <h3 class="font-bold text-cyan-800">Micro-interacciones</h3>
+                    </div>
+                    <p class="text-cyan-700 text-sm">Retroalimentación visual instantánea en cada acción</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

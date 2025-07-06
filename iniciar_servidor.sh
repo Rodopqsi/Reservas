@@ -1,0 +1,18 @@
+#!/bin/bash
+echo "Iniciando servidor de desarrollo de Laravel..."
+echo ""
+echo "Credenciales de acceso:"
+echo ""
+echo "ADMINISTRADOR:"
+echo "Email: admin@ejemplo.com"
+echo "Password: password"
+echo ""
+echo "PROFESORES:"
+echo "Email: profesor1@ejemplo.com"
+echo "Email: profesor2@ejemplo.com"
+echo "Email: profesor3@ejemplo.com"
+echo "Password: password"
+echo ""
+echo "Servidor iniciando en: http://localhost:8000"
+echo ""
+php artisan serve --host=localhost --port=8000

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Nuevo Grid de Calendario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables CSS personalizadas */
+        :root {
+            --primary-blue: #3b82f6;
+            --primary-indigo: #6366f1;
+            --primary-purple: #8b5cf6;
+            --primary-emerald: #10b981;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-heavy: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --blur-light: blur(8px);
+            --blur-medium: blur(12px);
+            --blur-heavy: blur(16px);
+        }
+
+        /* CALENDARIO GRID - ESTRUCTURA NUEVA */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(7, 1fr);
+            gap: 4px;
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(203, 213, 225, 0.1) 100%);
+            padding: 16px;
+            border-radius: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .calendar-header {
+            display: contents;
+        }
+
+        .calendar-row {
+            display: contents;
+        }
+
+        .time-header,
+        .time-cell {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .time-header:hover,
+        .time-cell:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .day-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .day-header:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Slot del calendario */
+        .slot-cell {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 2px solid transparent;
+            border-radius: 16px;
+            min-height: 72px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .slot-cell:hover {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(59, 130, 246, 0.3);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .slot-selected {
+            background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 2px solid rgba(147, 51, 234, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+        }
+
+        /* Contenido del slot */
+        .slot-content {
+            width: 100%;
+            height: 100%;
+            min-height: 56px;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slot-available {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            border: 2px solid #1d4ed8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .slot-available:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            border-color: #1e40af;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .slot-occupied {
+            cursor: pointer;
+        }
+
+        .slot-occupied:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .calendar-grid {
+                grid-template-columns: 80px repeat(7, 1fr);
+                gap: 3px;
+                padding: 12px;
+            }
+            .slot-cell {
+                min-height: 56px;
+                padding: 6px;
+            }
+            .slot-content {
+                font-size: 0.875rem;
+                min-height: 44px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: 70px repeat(7, 1fr);
+                gap: 2px;
+                padding: 8px;
+            }
+            .slot-cell {
+                min-height: 48px;
+                padding: 4px;
+            }
+            .slot-content {
+                font-size: 0.8rem;
+                min-height: 40px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .calendar-grid {
+                grid-template-columns: 60px repeat(7, 1fr);
+                gap: 1px;
+                padding: 6px;
+            }
+            .slot-cell {
+                min-height: 40px;
+                padding: 2px;
+            }
+            .slot-content {
+                font-size: 0.75rem;
+                min-height: 36px;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+                Test - Nuevo Grid de Calendario
+            </h1>
+            <p class="text-slate-600 text-lg">Verificando que el grid muestre días como columnas y horarios como filas</p>
+        </div>
+
+        <!-- Calendario Grid -->
+        <div class="bg-white/70 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl overflow-hidden">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6">
+                <div class="flex items-center justify-center">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold">Aula A101</h2>
+                        <p class="text-slate-300">Semana del 09 al 15 Dic 2024</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div class="calendar-grid">
+                    <!-- Header Row -->
+                    <div class="calendar-header">
+                        <div class="time-header">
+                            <div class="text-center p-3">
+                                <i class="fas fa-clock text-slate-600 mb-1"></i>
+                                <div class="text-sm font-bold text-slate-800">Horario</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">LUN</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">09</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">MAR</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">10</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">MIE</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">11</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">JUE</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">12</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">VIE</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">13</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">SAB</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">14</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                        <div class="day-header">
+                            <div class="text-center p-3">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">DOM</div>
+                                <div class="text-2xl font-bold text-slate-800 mb-1">15</div>
+                                <div class="text-xs text-slate-500 font-medium">DIC</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filas de horarios -->
+                    <!-- 8:00 - 9:00 -->
+                    <div class="calendar-row">
+                        <div class="time-cell">
+                            <div class="text-center p-3">
+                                <div class="text-sm font-bold text-slate-800">08:00</div>
+                                <div class="text-xs text-slate-500">09:00</div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="false">
+                            <div class="slot-content slot-occupied">
+                                <div class="h-full rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-3 shadow-lg">
+                                    <div class="flex flex-col h-full justify-between">
+                                        <div>
+                                            <div class="text-xs font-bold truncate">Prof. García</div>
+                                            <div class="text-xs opacity-90 truncate mt-1">Matemáticas</div>
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <i class="fas fa-check text-xs" title="Aprobada"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="false">
+                            <div class="slot-content slot-occupied">
+                                <div class="h-full rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-white p-3 shadow-lg">
+                                    <div class="flex flex-col h-full justify-between">
+                                        <div>
+                                            <div class="text-xs font-bold truncate">Prof. López</div>
+                                            <div class="text-xs opacity-90 truncate mt-1">Física</div>
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <i class="fas fa-clock text-xs" title="Pendiente"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 9:00 - 10:00 -->
+                    <div class="calendar-row">
+                        <div class="time-cell">
+                            <div class="text-center p-3">
+                                <div class="text-sm font-bold text-slate-800">09:00</div>
+                                <div class="text-xs text-slate-500">10:00</div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 10:00 - 11:00 -->
+                    <div class="calendar-row">
+                        <div class="time-cell">
+                            <div class="text-center p-3">
+                                <div class="text-sm font-bold text-slate-800">10:00</div>
+                                <div class="text-xs text-slate-500">11:00</div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11:00 - 12:00 -->
+                    <div class="calendar-row">
+                        <div class="time-cell">
+                            <div class="text-center p-3">
+                                <div class="text-sm font-bold text-slate-800">11:00</div>
+                                <div class="text-xs text-slate-500">12:00</div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="slot-cell" data-disponible="true">
+                            <div class="slot-content slot-available">
+                                <div class="text-center">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <div class="text-xs font-medium mt-1">Disponible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instrucciones -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-blue-800 mb-4">
+                <i class="fas fa-info-circle mr-2"></i>
+                Verificación del Grid
+            </h3>
+            <div class="space-y-2 text-blue-700">
+                <p><strong>✓ Columnas:</strong> Horario + 7 días de la semana</p>
+                <p><strong>✓ Filas:</strong> Cada horario (8:00-9:00, 9:00-10:00, etc.)</p>
+                <p><strong>✓ Diseño:</strong> Días aparecen como columnas (vertical)</p>
+                <p><strong>✓ Horarios:</strong> Aparecen como filas (horizontal)</p>
+                <p><strong>✓ Responsive:</strong> Se adapta a diferentes tamaños de pantalla</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test de interactividad
+        document.addEventListener('DOMContentLoaded', function() {
+            const slots = document.querySelectorAll('.slot-cell[data-disponible="true"]');
+            
+            slots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    if (this.classList.contains('slot-selected')) {
+                        this.classList.remove('slot-selected');
+                        const content = this.querySelector('.slot-content');
+                        content.className = 'slot-content slot-available';
+                        content.innerHTML = `
+                            <div class="text-center">
+                                <i class="fas fa-plus text-lg"></i>
+                                <div class="text-xs font-medium mt-1">Disponible</div>
+                            </div>
+                        `;
+                    } else {
+                        this.classList.add('slot-selected');
+                        const content = this.querySelector('.slot-content');
+                        content.className = 'slot-content';
+                        content.innerHTML = `
+                            <div class="h-full rounded-2xl bg-gradient-to-br from-violet-400 to-violet-600 border-2 border-violet-500 text-white flex items-center justify-center shadow-lg">
+                                <div class="text-center">
+                                    <i class="fas fa-check text-xl"></i>
+                                    <div class="text-xs font-medium mt-1">Seleccionado</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

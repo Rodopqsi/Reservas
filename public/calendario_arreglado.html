@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Arreglado - Prueba</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-6">
+                <i class="fas fa-calendar-check text-green-500 mr-2"></i>
+                Calendario Arreglado - Problemas Solucionados
+            </h1>
+            
+            <div class="space-y-6">
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h2 class="text-lg font-semibold text-green-800 mb-3">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Problemas Solucionados
+                    </h2>
+                    <ul class="space-y-2 text-green-700">
+                        <li><i class="fas fa-arrow-right mr-2"></i><strong>Selección doble:</strong> Eliminados event handlers duplicados</li>
+                        <li><i class="fas fa-arrow-right mr-2"></i><strong>Botones de navegación:</strong> Funciones corregidas para cambiar semana</li>
+                        <li><i class="fas fa-arrow-right mr-2"></i><strong>Event listeners:</strong> Reorganizados para evitar conflictos</li>
+                        <li><i class="fas fa-arrow-right mr-2"></i><strong>Selección por arrastre:</strong> Mejorada para evitar clicks accidentales</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h2 class="text-lg font-semibold text-blue-800 mb-3">
+                        <i class="fas fa-tools mr-2"></i>
+                        Cambios Realizados
+                    </h2>
+                    <div class="space-y-3 text-blue-700">
+                        <div>
+                            <strong>1. Event Handlers:</strong>
+                            <ul class="ml-4 mt-1 space-y-1">
+                                <li>• Eliminados `onclick`, `onmousedown`, `onmouseenter`, `onmouseup` duplicados</li>
+                                <li>• Agregados event listeners controlados via JavaScript</li>
+                                <li>• Prevención de propagación de eventos</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>2. Funciones de Navegación:</strong>
+                            <ul class="ml-4 mt-1 space-y-1">
+                                <li>• Corregidas llamadas de `cambiarSemana()` a funciones específicas</li>
+                                <li>• `irSemanaAnterior()` y `irSemanaSiguiente()` funcionando</li>
+                                <li>• Botón "Hoy" mejorado con validación</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>3. Selección de Slots:</strong>
+                            <ul class="ml-4 mt-1 space-y-1">
+                                <li>• Prevención de selección doble</li>
+                                <li>• Modo de selección por arrastre mejorado</li>
+                                <li>• Feedback visual instantáneo</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h2 class="text-lg font-semibold text-yellow-800 mb-3">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Funcionalidades Mejoradas
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-yellow-700">
+                        <div>
+                            <strong>Navegación:</strong>
+                            <ul class="ml-2 mt-1 space-y-1">
+                                <li>• Semana anterior/siguiente</li>
+                                <li>• Ir a hoy</li>
+                                <li>• Cambio de fecha manual</li>
+                                <li>• Indicadores de carga</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Selección:</strong>
+                            <ul class="ml-2 mt-1 space-y-1">
+                                <li>• Click simple</li>
+                                <li>• Selección por arrastre</li>
+                                <li>• Deselección</li>
+                                <li>• Validación de fechas</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <a href="http://127.0.0.1:8000/calendario" 
+                       class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200">
+                        <i class="fas fa-calendar-alt mr-2"></i>
+                        Probar Calendario Arreglado
+                    </a>
+                </div>
+                
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Instrucciones de Uso
+                    </h2>
+                    <div class="space-y-2 text-gray-700">
+                        <div><strong>Navegación:</strong> Usa los botones "Ant", "Hoy", "Sig" para navegar entre semanas</div>
+                        <div><strong>Selección:</strong> Click en un slot disponible para seleccionarlo/deseleccionarlo</div>
+                        <div><strong>Arrastre:</strong> Mantén presionado y arrastra para seleccionar múltiples slots</div>
+                        <div><strong>Reservar:</strong> Después de seleccionar, usa el botón "Reservar Selección"</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

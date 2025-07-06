@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Calendario</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Prueba de Calendario</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Estado del Sistema</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-blue-50 p-4 rounded">
+                    <h3 class="font-medium text-blue-900">Servidor</h3>
+                    <p class="text-sm text-blue-700">Laravel funcionando</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded">
+                    <h3 class="font-medium text-green-900">Base de Datos</h3>
+                    <p class="text-sm text-green-700">Conexión establecida</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">Calendario Semanal</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse border border-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Horario</th>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Lunes</th>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Martes</th>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Miércoles</th>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Jueves</th>
+                            <th class="border border-gray-300 p-2 bg-gray-50">Viernes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border border-gray-300 p-2 bg-gray-50 font-medium">8:00-9:00</td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-blue-500 text-white">
+                                <div class="text-xs">
+                                    <div class="font-semibold">Prof. García</div>
+                                    <div>Matemáticas</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-2 bg-gray-50 font-medium">9:00-10:00</td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-yellow-500 text-white">
+                                <div class="text-xs">
+                                    <div class="font-semibold">Prof. López</div>
+                                    <div>Pendiente</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-blue-500 text-white">
+                                <div class="text-xs">
+                                    <div class="font-semibold">Prof. García</div>
+                                    <div>Matemáticas</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                            <td class="border border-gray-300 p-2 h-20 bg-green-50 cursor-pointer hover:bg-green-100">
+                                <div class="text-center text-green-600">
+                                    <i class="fas fa-plus"></i>
+                                    <div class="text-xs">Disponible</div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center">
+            <a href="/calendario/debug" class="bg-blue-500 text-white px-6 py-2 rounded mr-4">Ver Diagnóstico</a>
+            <a href="/calendario/simple" class="bg-green-500 text-white px-6 py-2 rounded">Versión Simple</a>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+</body>
+</html>
