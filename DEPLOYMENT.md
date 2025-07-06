@@ -8,9 +8,9 @@
    - Ve a [render.com](https://render.com) y crea una cuenta
    - Conecta tu repositorio de GitHub
 
-2. **Crear Base de Datos**
-   - En el dashboard de Render, crea una nueva base de datos MySQL
-   - Anota las credenciales generadas
+2. **Crear Base de Datos PostgreSQL**
+   - En el dashboard de Render, crea una nueva base de datos PostgreSQL
+   - Anota las credenciales generadas (ya tienes: `reserva_aulas_z6gw`)
 
 3. **Crear Web Service**
    - Crea un nuevo Web Service
@@ -30,8 +30,8 @@ SESSION_DRIVER=database
 CACHE_STORE=database
 QUEUE_CONNECTION=database
 
-# Variables de base de datos (se auto-generan si usas render.yaml)
-DATABASE_URL=mysql://usuario:password@host:puerto/database
+# Variables de base de datos PostgreSQL (se auto-generan si usas render.yaml)
+DATABASE_URL=postgresql://usuario:password@host:puerto/database
 ```
 
 4. **Configurar Build**

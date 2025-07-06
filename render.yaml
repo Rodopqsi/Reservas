@@ -28,6 +28,7 @@ services:
 
 databases:
   - name: sistema-reservas-db
-    databaseName: reserva_aulas
+    databaseName: reserva_aulas_z6gw
     user: reservas_user
     plan: free
+    region: oregon
