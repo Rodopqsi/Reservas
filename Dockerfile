@@ -20,8 +20,8 @@ RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Crear usuario no-root
-RUN groupadd -r appuser && useradd -r -g appuser appuser
+# Crear usuario no-root con directorio home
+RUN groupadd -r appuser && useradd -r -g appuser -m appuser
 
 # Configurar directorio de trabajo
 WORKDIR /var/www
@@ -44,6 +44,9 @@ USER appuser
 
 # Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader
+
+# Configurar npm para usar caché local
+RUN npm config set cache /tmp/.npm --global
 
 # Instalar dependencias Node.js y construir assets
 RUN npm install && npm run build
