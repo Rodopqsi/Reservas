@@ -3,6 +3,16 @@ set -e
 
 echo "🚀 Iniciando Sistema de Reservas..."
 
+# Mostrar información de entorno
+echo "📋 Información del entorno:"
+echo "DB_CONNECTION: ${DB_CONNECTION:-'no configurado'}"
+echo "DB_HOST: ${DB_HOST:-'no configurado'}"
+echo "DB_PORT: ${DB_PORT:-'no configurado'}"
+echo "DB_DATABASE: ${DB_DATABASE:-'no configurado'}"
+echo "DB_USERNAME: ${DB_USERNAME:-'no configurado'}"
+echo "APP_ENV: ${APP_ENV:-'no configurado'}"
+echo "APP_DEBUG: ${APP_DEBUG:-'no configurado'}"
+
 # Función para esperar a que la base de datos esté disponible
 wait_for_db() {
     echo "⏳ Esperando a que la base de datos esté disponible..."
@@ -17,19 +27,26 @@ wait_for_db() {
         # Si db:monitor no existe, usar una verificación simple
         if php -r "
             try {
+                \$host = \$_ENV['DB_HOST'] ?? '127.0.0.1';
+                \$port = \$_ENV['DB_PORT'] ?? '5432';
+                \$dbname = \$_ENV['DB_DATABASE'] ?? 'reserva_aulas';
+                \$username = \$_ENV['DB_USERNAME'] ?? 'root';
+                \$password = \$_ENV['DB_PASSWORD'] ?? '';
+                
+                echo 'Intentando conectar a: ' . \$host . ':' . \$port . ' db=' . \$dbname . PHP_EOL;
+                
                 \$pdo = new PDO(
-                    'pgsql:host=' . (\$_ENV['DATABASE_HOST'] ?? '127.0.0.1') . 
-                    ';port=' . (\$_ENV['DATABASE_PORT'] ?? '5432') . 
-                    ';dbname=' . (\$_ENV['DATABASE_NAME'] ?? 'reserva_aulas_z6gw'),
-                    \$_ENV['DATABASE_USERNAME'] ?? 'root',
-                    \$_ENV['DATABASE_PASSWORD'] ?? 'PBTCcvkFvAELvXknzQQdrxGyWb6zDGWm'
+                    'pgsql:host=' . \$host . ';port=' . \$port . ';dbname=' . \$dbname,
+                    \$username,
+                    \$password
                 );
-                echo 'Connected';
+                echo 'Connected successfully' . PHP_EOL;
                 exit(0);
             } catch (Exception \$e) {
+                echo 'Error: ' . \$e->getMessage() . PHP_EOL;
                 exit(1);
             }
-        " > /dev/null 2>&1; then
+        " 2>&1; then
             echo "✅ Base de datos conectada!"
             return 0
         fi
