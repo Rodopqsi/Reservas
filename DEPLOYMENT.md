@@ -1,111 +1,73 @@
-# Sistema de Reservas de Aulas
+# Deployment Guide for Reserva Aulas
 
-## Deployment en Render
+## Render Deployment
 
-### Configuración Automática con render.yaml ✅
+### Prerequisites
+1. GitHub repository with the code
+2. Render account
+3. PostgreSQL database (can be created on Render)
 
-El proyecto está configurado para deployment automático usando el archivo `render.yaml`.
+### Steps to Deploy
 
-#### Pasos para deployment:
+1. **Connect Repository**
+   - Go to Render dashboard
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
 
-1. **Crear cuenta en Render.com**
-   - Ve a [render.com](https://render.com) y crea una cuenta
-   - Conecta tu repositorio de GitHub
+2. **Configure Build Settings**
+   - Build Command: `composer install --no-dev --optimize-autoloader && npm install && npm run build`
+   - Start Command: `php artisan migrate --force && php artisan db:seed --force && php artisan serve --host 0.0.0.0 --port $PORT`
+   - Environment: PHP
 
-2. **Crear desde repositorio**
-   - En el dashboard de Render, haz clic en "New +"
-   - Selecciona "Blueprint"
-   - Conecta tu repositorio GitHub
-   - Render detectará automáticamente el archivo `render.yaml`
+3. **Environment Variables**
+   Set these in Render dashboard:
+   ```
+   APP_NAME=Reserva Aulas
+   APP_ENV=production
+   APP_KEY=base64:9hI95u98rZa5om8cdclWoGQATjMXW3pg3ZohW7K+3XY=
+   APP_DEBUG=false
+   APP_URL=https://your-app-name.onrender.com
+   
+   DB_CONNECTION=pgsql
+   DB_HOST=your-postgres-host
+   DB_PORT=5432
+   DB_DATABASE=your-database-name
+   DB_USERNAME=your-username
+   DB_PASSWORD=your-password
+   ```
 
-3. **Configuración automática**
-   - Render creará automáticamente:
-     - Base de datos PostgreSQL (`reserva-aulas-db`)
-     - Web Service (`reserva-aulas`)
-     - Todas las variables de entorno necesarias
+4. **Database Setup**
+   - Create PostgreSQL database on Render
+   - Update environment variables with database credentials
 
-#### Variables de entorno configuradas automáticamente:
-```yaml
-APP_ENV=production
-APP_DEBUG=false
-APP_KEY=<generada automáticamente>
-APP_URL=https://reserva-aulas.onrender.com
-DB_CONNECTION=pgsql
-DB_HOST=<hostname interno de la base de datos>
-DB_PORT=5432
-DB_DATABASE=reserva_aulas
-DB_USERNAME=reserva_user
-DB_PASSWORD=<generada automáticamente>
+5. **Deploy**
+   - Click "Create Web Service"
+   - Wait for deployment to complete
+
+### Using Docker
+Alternatively, you can use the provided Dockerfile:
+```bash
+docker build -t reserva-aulas .
+docker run -p 8080:8080 reserva-aulas
 ```
 
-### Proceso de Deployment
+### Manual Deployment Commands
+```bash
+# Install dependencies
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
 
-1. **Build del contenedor Docker**
-2. **Instalación de dependencias PHP**
-3. **Configuración de permisos**
-4. **Inicio del servicio**:
-   - ⏳ Verificación de conectividad a la base de datos
-   - 🧹 Limpieza de configuraciones
-   - 📊 Ejecución de migraciones
-   - 🌱 Ejecución de seeders
-   - 🌐 Inicio del servidor en puerto 8080
+# Run migrations
+php artisan migrate --force
+php artisan db:seed --force
 
-### Arquitectura
-
-```
-├── Dockerfile              # Configuración del contenedor
-├── start.sh                # Script de inicio con validaciones
-├── render.yaml             # Configuración de Render (automática)
-├── .dockerignore          # Archivos excluidos del build
-├── .env.example           # Ejemplo de variables de entorno
-└── DEPLOYMENT.md          # Esta documentación
+# Start server
+php artisan serve --host=0.0.0.0 --port=8080
 ```
 
 ### Troubleshooting
-
-#### Error de conexión a la base de datos
-- Verificar que la base de datos esté creada y disponible
-- Revisar logs del deployment en Render
-- El script `start.sh` incluye debug detallado de la conexión
-
-#### Problemas de permisos
-- El Dockerfile configura los permisos necesarios
-- Si persisten problemas, verificar logs del contenedor
-
-#### Verificar deployment
-- URL: `https://reserva-aulas.onrender.com`
-- Logs disponibles en el dashboard de Render
-- El script de inicio incluye información detallada del entorno
-
-### Comandos Útiles para Debug Local
-
-```bash
-# Generar nueva clave de aplicación
-php artisan key:generate
-
-# Ejecutar migraciones manualmente
-php artisan migrate --force
-
-# Limpiar caché
-php artisan cache:clear
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-
-# Verificar conectividad a la base de datos
-php artisan tinker
-# En tinker: DB::connection()->getPdo();
-```
-
-### Limitaciones del Plan Gratuito
-
-- CPU y memoria limitados
-- Base de datos se suspende después de 90 días de inactividad
-- Para producción, considerar usar un plan pago
-
-### Próximos Pasos
-
-1. Hacer push de los cambios al repositorio
-2. Crear el Blueprint en Render usando el archivo `render.yaml`
-3. Monitorear el deployment en el dashboard de Render
-4. Verificar que la aplicación esté funcionando correctamente
+- Ensure all environment variables are set correctly
+- Check that the database connection is working
+- Verify that the build process completes successfully
+- Monitor logs for any errors during deployment

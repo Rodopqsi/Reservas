@@ -9,7 +9,10 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    libpq-dev
+    libpq-dev \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
 
 # Instalar extensiones PHP para PostgreSQL
 RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
@@ -26,18 +29,14 @@ COPY . .
 # Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Crear directorio build y manifest con la estructura correcta
-RUN mkdir -p public/build/assets && \
-    echo '{"resources/css/app.css":{"file":"assets/app-C2HWaN36.css","src":"resources/css/app.css","isEntry":true},"resources/js/app.js":{"file":"assets/app-Bf4POITK.js","name":"app","src":"resources/js/app.js","isEntry":true}}' > public/build/manifest.json && \
-    touch public/build/assets/app-C2HWaN36.css && \
-    touch public/build/assets/app-Bf4POITK.js
+# Instalar dependencias Node.js y construir assets
+RUN npm install && npm run build
 
-# Copiar y configurar script de inicio
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Configurar permisos
+RUN chmod -R 755 storage bootstrap/cache
 
 # Exponer puerto
 EXPOSE 8080
 
 # Comando de inicio
-CMD ["/start.sh"]
+CMD ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080"]

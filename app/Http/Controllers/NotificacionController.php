@@ -95,25 +95,25 @@ class NotificacionController extends Controller
             case 'nueva_reserva':
                 return [
                     'titulo' => 'Nueva reserva pendiente',
-                    'mensaje' => "El profesor {$reserva->user->name} ha solicitado reservar el aula {$reserva->aula->nombre} para el {$reserva->fecha} de {$reserva->hora_inicio} a {$reserva->hora_fin}."
+                    'mensaje' => "El profesor {$reserva->user->name} ha solicitado reservar el aula {$reserva->aula->nombre} para el {$reserva->fecha->format('d/m/Y')} de {$reserva->hora_inicio} a {$reserva->hora_fin}."
                 ];
             
             case 'reserva_aprobada':
                 return [
                     'titulo' => 'Reserva aprobada',
-                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido aprobada."
+                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha->format('d/m/Y')} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido aprobada."
                 ];
             
             case 'reserva_rechazada':
                 return [
                     'titulo' => 'Reserva rechazada',
-                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido rechazada."
+                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha->format('d/m/Y')} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido rechazada."
                 ];
             
             case 'reserva_cancelada':
                 return [
                     'titulo' => 'Reserva cancelada',
-                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido cancelada."
+                    'mensaje' => "Tu reserva del aula {$reserva->aula->nombre} para el {$reserva->fecha->format('d/m/Y')} de {$reserva->hora_inicio} a {$reserva->hora_fin} ha sido cancelada."
                 ];
             
             case 'asignacion_horarios':

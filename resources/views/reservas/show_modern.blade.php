@@ -66,7 +66,7 @@
 
                             <div class="bg-white/50 rounded-xl p-4">
                                 <span class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Horario:</span>
-                                <p class="text-lg font-medium text-gray-900 mt-1">{{ $reserva->hora_inicio->format('H:i') }} - {{ $reserva->hora_fin->format('H:i') }}</p>
+                                <p class="text-lg font-medium text-gray-900 mt-1">{{ date('H:i', strtotime($reserva->hora_inicio)) }} - {{ date('H:i', strtotime($reserva->hora_fin)) }}</p>
                                 @php
                                     $inicio = \Carbon\Carbon::parse($reserva->hora_inicio);
                                     $fin = \Carbon\Carbon::parse($reserva->hora_fin);

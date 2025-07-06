@@ -74,7 +74,7 @@
                                                 <h4 class="font-medium">{{ $reserva->aula->nombre }}</h4>
                                                 <p class="text-sm text-gray-600">
                                                     {{ $reserva->fecha->format('d/m/Y') }} - 
-                                                    {{ $reserva->hora_inicio->format('H:i') }} a {{ $reserva->hora_fin->format('H:i') }}
+                                                    {{ date('H:i', strtotime($reserva->hora_inicio)) }} a {{ date('H:i', strtotime($reserva->hora_fin)) }}
                                                 </p>
                                                 <p class="text-sm text-gray-600">{{ $reserva->motivo }}</p>
                                             </div>

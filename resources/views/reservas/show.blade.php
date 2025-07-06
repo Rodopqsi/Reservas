@@ -26,7 +26,7 @@
 
                                 <div>
                                     <span class="text-sm font-medium text-gray-500">Horario:</span>
-                                    <p class="text-sm text-gray-900">{{ $reserva->hora_inicio->format('H:i') }} - {{ $reserva->hora_fin->format('H:i') }}</p>
+                                    <p class="text-sm text-gray-900">{{ date('H:i', strtotime($reserva->hora_inicio)) }} - {{ date('H:i', strtotime($reserva->hora_fin)) }}</p>
                                 </div>
 
                                 <div>
