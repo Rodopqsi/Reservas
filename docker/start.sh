@@ -3,10 +3,6 @@ set -e
 
 echo "🚀 Iniciando Sistema de Reservas..."
 
-# Esperar a que la base de datos esté disponible
-echo "⏳ Esperando conexión a la base de datos..."
-php artisan migrate:status || echo "Base de datos no disponible aún"
-
 # Crear directorios necesarios
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/storage/framework/cache
@@ -28,10 +24,17 @@ fi
 
 # Limpiar y optimizar
 echo "🧹 Limpiando caché..."
-php artisan config:clear
-php artisan route:clear
-php artisan view:clear
-php artisan cache:clear
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+php artisan cache:clear || true
+
+# Esperar a que la base de datos esté disponible
+echo "⏳ Esperando conexión a la base de datos..."
+until php artisan migrate:status 2>/dev/null; do
+    echo "Esperando base de datos..."
+    sleep 5
+done
 
 # Optimizar para producción
 echo "⚡ Optimizando para producción..."
