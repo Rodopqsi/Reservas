@@ -32,8 +32,12 @@ RUN mkdir -p public/build/assets && \
     touch public/build/assets/app-C2HWaN36.css && \
     touch public/build/assets/app-Bf4POITK.js
 
+# Copiar y configurar script de inicio
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 # Exponer puerto
 EXPOSE 8080
 
 # Comando de inicio
-CMD php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080
+CMD ["/start.sh"]
