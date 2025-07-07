@@ -47,5 +47,16 @@ class AdminUserSeeder extends Seeder
                 'estado' => 'pendiente',
             ]);
         }
+
+        if (!User::where('email', 'profesor3@ejemplo.com')->exists()) {
+            User::create([
+                'name' => 'Profesor Carlos López',
+                'email' => 'profesor3@ejemplo.com',
+                'password' => Hash::make('password'),
+                'codigo_profesor' => 'PROF003',
+                'role' => 'profesor',
+                'estado' => 'aprobado',
+            ]);
+        }
     }
 }

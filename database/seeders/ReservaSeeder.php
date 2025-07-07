@@ -35,7 +35,11 @@ class ReservaSeeder extends Seeder
                 'observaciones' => 'Necesito proyector',
                 'estado' => 'pendiente',
             ],
-            [
+        ];
+
+        // Solo agregar más reservas si hay suficientes profesores y aulas
+        if ($profesores->count() >= 2 && $aulas->count() >= 2) {
+            $reservas[] = [
                 'user_id' => $profesores->skip(1)->first()->id,
                 'aula_id' => $aulas->skip(1)->first()->id,
                 'fecha' => now()->addDays(2)->format('Y-m-d'),
@@ -44,8 +48,11 @@ class ReservaSeeder extends Seeder
                 'motivo' => 'Seminario de Física',
                 'observaciones' => null,
                 'estado' => 'pendiente',
-            ],
-            [
+            ];
+        }
+
+        if ($profesores->count() >= 3 && $aulas->count() >= 3) {
+            $reservas[] = [
                 'user_id' => $profesores->skip(2)->first()->id,
                 'aula_id' => $aulas->skip(2)->first()->id,
                 'fecha' => now()->addDays(3)->format('Y-m-d'),
@@ -54,8 +61,8 @@ class ReservaSeeder extends Seeder
                 'motivo' => 'Examen Final',
                 'observaciones' => 'Requiere silencio absoluto',
                 'estado' => 'aprobada',
-            ],
-        ];
+            ];
+        }
 
         foreach ($reservas as $reservaData) {
             $reserva = Reserva::create($reservaData);
