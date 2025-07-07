@@ -29,12 +29,8 @@ WORKDIR /var/www
 # Copiar archivos del proyecto
 COPY . .
 
-# Crear archivo .env temporal para el build
-RUN cp .env.build .env
-
 # Crear directorios necesarios y configurar permisos
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache database && \
-    touch database/database.sqlite && \
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
     chmod -R 755 storage bootstrap/cache && \
     chown -R appuser:appuser . && \
     chmod -R 755 .
@@ -45,8 +41,8 @@ USER appuser
 # Instalar dependencias PHP
 RUN composer install --no-dev --optimize-autoloader
 
-# Configurar npm para usar caché local
-RUN npm config set cache /tmp/.npm --global
+# Configurar npm para usar caché local del usuario
+RUN npm config set cache /tmp/.npm
 
 # Instalar dependencias Node.js y construir assets
 RUN npm install && npm run build
@@ -58,4 +54,4 @@ USER root
 EXPOSE 8080
 
 # Comando de inicio
-CMD ["sh", "-c", "chown -R appuser:appuser /var/www && su appuser -c 'php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080'"]
+CMD ["sh", "-c", "chown -R appuser:appuser /var/www && su appuser -c 'php artisan config:cache && php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8080'"]
