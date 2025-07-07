@@ -5,8 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
+        <title>Reservas</title>
+        
+        <!-- Favicon (puedes cambiar la ruta de la imagen) -->
+        <link rel="icon" type="image/png" style="widht:100px;" href="{{ asset('images/logo.png') }}">
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -184,9 +186,10 @@
                     <img src="{{ asset('images/logo.png') }}"  style="width: 120px; height:120px;" alt="Logo">
                 </a>
             </div>
-
+            
             <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
                 {{ $slot }}
+                
             </div>
         </div>
     </body>
