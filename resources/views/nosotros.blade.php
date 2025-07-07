@@ -40,37 +40,37 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 justify-center items-center">
                 <div class="flex flex-col items-center">
-                    <img src="/img/user1.png" alt="Aguilar Palomino Akemi Surey" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Akemi.jpg" alt="Aguilar Palomino Akemi Surey" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Aguilar Palomino Akemi Surey</span>
                     <span class="text-gray-500 text-sm">Desarrolladora Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user2.png" alt="Espinoza Uriel Fabrizio" class="w-24 h-24 rounded-full mb-2 shadow">
-                    <span class="font-semibold text-center">Espinoza Uriel Fabrizio</span>
+                    <img src="/images/Fabrizio.jpg" alt="Espinoza Uriol Fabrizio" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <span class="font-semibold text-center">Espinoza Uriol Fabrizio</span>
                     <span class="text-gray-500 text-sm">Desarrollador Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user3.png" alt="Morales Castellanos Kytzia Kysabel" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Kytzia.jpg" alt="Morales Castellanos Kytzia Kysabel" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Morales Castellanos Kytzia Kysabel</span>
                     <span class="text-gray-500 text-sm">Desarrolladora Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user4.png" alt="Preciado Avila Jorge Luis" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Jorge.jpg" alt="Preciado Avila Jorge Luis" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Preciado Avila Jorge Luis</span>
                     <span class="text-gray-500 text-sm">Desarrollador Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user5.png" alt="Ramírez Melendrez Sergi Farid" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Farid.jpg" alt="Ramírez Melendrez Sergi Farid" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Ramírez Melendrez Sergi Farid</span>
                     <span class="text-gray-500 text-sm">Desarrollador Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user6.png" alt="Valverde Flores Fernando Alonso" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Fernando.jpg" alt="Valverde Flores Fernando Alonso" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Valverde Flores Fernando Alonso</span>
                     <span class="text-gray-500 text-sm">Desarrollador Web</span>
                 </div>
                 <div class="flex flex-col items-center">
-                    <img src="/img/user7.png" alt="Venturo Bacilio Jhonatan Steben" class="w-24 h-24 rounded-full mb-2 shadow">
+                    <img src="/images/Jhonatan.jpg" alt="Venturo Bacilio Jhonatan Steben" class="w-24 h-24 rounded-full mb-2 shadow">
                     <span class="font-semibold text-center">Venturo Bacilio Jhonatan Steben</span>
                     <span class="text-gray-500 text-sm">Desarrollador Web</span>
                 </div>
