@@ -80,7 +80,10 @@ class AulaSeeder extends Seeder
         ];
 
         foreach ($aulas as $aula) {
-            Aula::create($aula);
+            // Solo crear el aula si no existe ya
+            if (!Aula::where('codigo', $aula['codigo'])->exists()) {
+                Aula::create($aula);
+            }
         }
     }
 }

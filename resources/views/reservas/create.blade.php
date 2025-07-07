@@ -175,6 +175,7 @@
     </style>
 </head>
 <body class="min-h-screen">
+    @include('layouts.navigation')
     <div class="container mx-auto px-4 py-12">
         <div class="max-w-4xl mx-auto">
             <!-- Encabezado ultra moderno -->
