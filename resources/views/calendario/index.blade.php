@@ -781,7 +781,7 @@
             const elemento = document.getElementById('fecha-actual');
             if (elemento) {
                 const ahora = new Date();
-                elemento.textContent = ahora.toLocaleString('es-PE', {
+                elemento.textContent = ahora.toLocaleString('es-ES', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric',
