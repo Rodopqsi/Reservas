@@ -18,23 +18,30 @@ class EnsureUserApproved
     {
         $user = Auth::user();
         
-        // Si es admin, siempre permitir acceso
-        if ($user && $user->isAdmin()) {
+        // Si no hay usuario autenticado, continuar (será manejado por auth middleware)
+        if (!$user) {
             return $next($request);
         }
         
-        // Si es profesor, verificar que esté aprobado
-        if ($user && $user->isProfesor()) {
+        // Si es admin, siempre permitir acceso
+        if ($user->isAdmin()) {
+            return $next($request);
+        }
+        
+        // Para profesores, verificar que esté aprobado
+        if ($user->isProfesor()) {
             if ($user->estado === 'pendiente') {
-                Auth::logout();
-                return redirect()->route('login')
-                    ->with('error', 'Tu cuenta está pendiente de aprobación por el administrador.');
+                return redirect()->route('pending-approval');
             }
             
-            if ($user->estado === 'rechazado') {
+            if ($user->estado === 'rechazada' || $user->estado === 'rechazado') {
+                return redirect()->route('account-rejected');
+            }
+            
+            if ($user->estado !== 'aprobado') {
                 Auth::logout();
                 return redirect()->route('login')
-                    ->with('error', 'Tu cuenta ha sido rechazada. Contacta al administrador para más información.');
+                    ->with('error', 'Tu cuenta no está activa. Contacta al administrador.');
             }
         }
         

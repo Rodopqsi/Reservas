@@ -58,5 +58,16 @@ class AdminUserSeeder extends Seeder
                 'estado' => 'aprobado',
             ]);
         }
+
+        if (!User::where('email', 'profesor4@ejemplo.com')->exists()) {
+            User::create([
+                'name' => 'Profesor Ana Rodríguez',
+                'email' => 'profesor4@ejemplo.com',
+                'password' => Hash::make('password'),
+                'codigo_profesor' => 'PROF004',
+                'role' => 'profesor',
+                'estado' => 'rechazada',
+            ]);
+        }
     }
 }
