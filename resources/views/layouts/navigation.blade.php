@@ -1,17 +1,17 @@
-<nav class="bg-white border-b border-gray-100">
+<nav class="bg-white border-b border-gray-100" style="background-color: white; border-bottom: 1px solid #e5e7eb; display: block;">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
+        <div class="flex justify-between h-16" style="display: flex; justify-content: space-between; align-items: center; height: 4rem;">
+            <div class="flex" style="display: flex; align-items: center;">
                 <!-- Logo -->
-                <div class="shrink-0 flex items-center">
+                <div class="shrink-0 flex items-center" style="flex-shrink: 0; display: flex; align-items: center;">
                     <a href="{{ route('dashboard') }}">
                         <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 40px; width: 40px;" class="rounded-full shadow">
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" style="display: flex; margin-left: 2.5rem;">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -40,55 +40,35 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
+            <!-- User Actions with Icons -->
+            <div class="hidden sm:flex sm:items-center sm:space-x-4" style="display: flex; align-items: center; gap: 1rem;">
+                <!-- User Name -->
+                <span class="text-gray-700 font-medium" style="color: #374151; font-weight: 500;">{{ Auth::user()->name }}</span>
+                
                 <!-- Notificaciones -->
-                <div class="relative mr-4">
-                    <a href="{{ route('notificaciones.index') }}" class="text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700 transition">
+                <div class="relative" style="position: relative;">
+                    <a href="{{ route('notificaciones.index') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; text-decoration: none; display: inline-block;" title="Notificaciones">
                         <i class="fas fa-bell text-lg"></i>
                         @if(auth()->user()->notificacionesNoLeidas()->count() > 0)
-                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="position: absolute; top: -4px; right: -4px; background-color: #ef4444; color: white; font-size: 0.75rem; border-radius: 50%; height: 20px; width: 20px; display: flex; align-items: center; justify-content: center;">
                                 {{ auth()->user()->notificacionesNoLeidas()->count() }}
                             </span>
                         @endif
                     </a>
                 </div>
 
-                <!-- Dropdown manual -->
-                <div class="relative">
-                    <button id="user-menu-button" onclick="toggleUserMenu()" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                        <div>{{ Auth::user()->name }}</div>
-                        <div class="ms-1">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </div>
+                <!-- Profile Icon -->
+                <a href="{{ route('profile.edit') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; text-decoration: none; display: inline-block;" title="Perfil">
+                    <i class="fas fa-user text-lg"></i>
+                </a>
+
+                <!-- Logout Icon -->
+                <form method="POST" action="{{ route('logout') }}" class="inline" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="text-gray-500 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center;" title="Cerrar Sesión">
+                        <i class="fas fa-sign-out-alt text-lg"></i>
                     </button>
-
-                    <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                        <div class="py-1">
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ __('Profile') }}
-                            </a>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    {{ __('Log Out') }}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button id="mobile-menu-button" onclick="toggleMobileMenu()" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path id="hamburger-open" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path id="hamburger-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                </form>
             </div>
         </div>
     </div>
@@ -185,43 +165,13 @@ document.addEventListener('click', function(event) {
 </div>
 
 <script>
-// Funciones para el menú de usuario
-function toggleUserMenu() {
-    const menu = document.getElementById('user-menu');
-    menu.classList.toggle('hidden');
-}
-
+// Función para menú móvil
 function toggleMobileMenu() {
     const menu = document.getElementById('mobile-menu');
-    const openIcon = document.getElementById('hamburger-open');
-    const closeIcon = document.getElementById('hamburger-close');
-    
-    menu.classList.toggle('hidden');
-    openIcon.classList.toggle('hidden');
-    closeIcon.classList.toggle('hidden');
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
 }
-
-// Cerrar menú cuando se hace click fuera
-document.addEventListener('click', function(event) {
-    const userMenu = document.getElementById('user-menu');
-    const userMenuButton = document.getElementById('user-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    
-    // Cerrar menú de usuario si el click es fuera del menú
-    if (userMenu && userMenuButton && !userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-        userMenu.classList.add('hidden');
-    }
-    
-    // Cerrar menú móvil si el click es fuera del menú
-    if (mobileMenu && mobileMenuButton && !mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-        mobileMenu.classList.add('hidden');
-        const openIcon = document.getElementById('hamburger-open');
-        const closeIcon = document.getElementById('hamburger-close');
-        if (openIcon) openIcon.classList.remove('hidden');
-        if (closeIcon) closeIcon.classList.add('hidden');
-    }
-});
 
 // Sistema de notificaciones flotantes
 function mostrarNotificacionFlotante(mensaje, tipo = 'info', duracion = 5000) {
@@ -291,30 +241,19 @@ function cerrarNotificacion(id) {
 }
 
 // Verificar notificaciones periódicamente
-let ultimaVerificacion = 0;
-let notificacionesMostradas = new Set();
-
 function verificarNotificaciones() {
     fetch('/api/notificaciones/verificar-nuevas')
         .then(response => response.json())
         .then(data => {
-            // Solo mostrar notificación si hay nuevas notificaciones
-            if (data.nuevas > 0 && !notificacionesMostradas.has(data.total)) {
+            if (data.nuevas > 0) {
                 const mensaje = data.nuevas === 1 ? 
                     'Tienes una nueva notificación' : 
                     `Tienes ${data.nuevas} notificaciones nuevas`;
                 
                 mostrarNotificacionFlotante(mensaje, 'info');
-                notificacionesMostradas.add(data.total);
-                
-                // Limpiar cache después de 5 minutos
-                setTimeout(() => {
-                    notificacionesMostradas.delete(data.total);
-                }, 300000);
             }
         })
         .catch(error => {
-            // Silenciar errores para no molestar al usuario
             console.log('Error verificando notificaciones:', error);
         });
 }
@@ -325,52 +264,18 @@ setInterval(verificarNotificaciones, 30000);
 // Verificar al cargar la página
 document.addEventListener('DOMContentLoaded', verificarNotificaciones);
 
-// Función para testing del menú (para debug)
-function testearMenu() {
-    console.log('Probando menú de usuario...');
-    toggleUserMenu();
-    setTimeout(() => {
-        console.log('Cerrando menú de usuario...');
-        toggleUserMenu();
-    }, 2000);
-}
-
-// Agregar estilos necesarios para los dropdowns
-const styles = `
-    .dropdown-menu {
-        position: absolute;
-        right: 0;
-        top: 100%;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.375rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        z-index: 50;
-        min-width: 12rem;
-    }
-    
-    .dropdown-item {
-        display: block;
-        padding: 0.5rem 1rem;
-        color: #374151;
-        text-decoration: none;
-        transition: background-color 0.15s ease-in-out;
-    }
-    
-    .dropdown-item:hover {
-        background-color: #f3f4f6;
-    }
-    
-    .hidden {
-        display: none !important;
-    }
-`;
-
-// Agregar estilos al head si no existen
-if (!document.getElementById('navigation-styles')) {
-    const styleSheet = document.createElement('style');
-    styleSheet.id = 'navigation-styles';
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
-}
+// Agregar efectos hover a los iconos
+document.addEventListener('DOMContentLoaded', function() {
+    // Efectos hover para iconos
+    const icons = document.querySelectorAll('a[title], button[title]');
+    icons.forEach(icon => {
+        icon.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.1)';
+        });
+        
+        icon.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
 </script>
