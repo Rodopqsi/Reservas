@@ -26,7 +26,7 @@
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-center">
                         <div class="text-3xl font-bold text-green-600">{{ $reservasCalendario->count() }}</div>
-                        <div class="text-gray-600">Reservas Hoy</div>
+                        <div class="text-gray-600">Reservas Semana</div>
                     </div>
                 </div>
 
@@ -38,152 +38,193 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Calendario Simple -->
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg lg:col-span-2">
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold">Calendario de Aulas</h3>
-                            <div class="flex space-x-2">
-                                <!-- Filtro de Fecha -->
-                                <input type="date" 
-                                       id="fecha-filtro" 
-                                       value="{{ date('Y-m-d') }}"
-                                       style="font-size: 12px; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.25rem 0.5rem;">
-                                
-                                <!-- Filtro de Aula -->
-                                <select id="aula-filtro" style="font-size: 12px; border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.25rem 0.5rem;">
-                                    <option value="">Todas las aulas</option>
+                            <div class="text-sm text-gray-600">
+                                Aula: <span id="nombre-aula-actual" class="font-semibold text-blue-600">{{ $aulas->first()->nombre ?? 'Selecciona un aula' }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtros -->
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm text-gray-600">Aula:</label>
+                                <select id="filtro-aula" class="text-sm border rounded px-2 py-1">
                                     @foreach($aulas as $aula)
-                                        <option value="{{ $aula->id }}">{{ $aula->codigo }}</option>
+                                        <option value="{{ $aula->id }}">{{ $aula->nombre }}</option>
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="flex items-center space-x-2">
+                                <label class="text-sm text-gray-600">Fecha:</label>
+                                <input type="date" id="filtro-fecha" class="text-sm border rounded px-2 py-1" value="{{ Carbon\Carbon::now()->format('Y-m-d') }}">
+                            </div>
+                            <button id="aplicar-filtros" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                                Aplicar
+                            </button>
                         </div>
-                        
-                        <div class="overflow-x-auto">
-                            <div class="min-w-full">
-                                <!-- Encabezado con nombres de aulas -->
-                                <div class="grid gap-1 mb-2 text-xs" style="grid-template-columns: 80px repeat({{ $aulas->take(8)->count() }}, 1fr);">
-                                    <div class="font-medium text-gray-500 p-2">Hora</div>
-                                    @foreach($aulas->take(8) as $aula)
-                                        <div class="font-medium text-gray-700 p-2 text-center bg-gray-50 rounded aula-header" data-aula-id="{{ $aula->id }}">
-                                            <div class="font-semibold">{{ $aula->codigo }}</div>
-                                            <div class="text-gray-500 text-xs">{{ Str::limit($aula->nombre, 10) }}</div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                                
-                                <!-- Filas de horarios -->
-                                @for($hora = 8; $hora <= 18; $hora++)
-                                    <div class="grid gap-1 mb-1 hora-row" style="grid-template-columns: 80px repeat({{ $aulas->take(8)->count() }}, 1fr);">
-                                        <div class="text-xs font-medium text-gray-800 p-3 bg-blue-50 rounded flex items-center justify-center">
-                                            <div class="text-center">
-                                                <div class="font-bold">{{ str_pad($hora, 2, '0', STR_PAD_LEFT) }}:00</div>
-                                                <div class="text-gray-500">{{ str_pad($hora + 1, 2, '0', STR_PAD_LEFT) }}:00</div>
-                                            </div>
-                                        </div>
-                                        @foreach($aulas->take(8) as $aula)
-                                            @php
-                                                $horaInicio = str_pad($hora, 2, '0', STR_PAD_LEFT) . ':00:00';
-                                                $fechaActual = request('fecha', today()->format('Y-m-d'));
-                                                
-                                                // Usar la misma lógica que el calendario principal
-                                                $reservaEnHora = $reservasCalendario->where('aula_id', $aula->id)
-                                                    ->first(function($r) use ($fechaActual, $horaInicio) {
-                                                        $fechaReserva = $r->fecha instanceof \Carbon\Carbon ? $r->fecha->format('Y-m-d') : $r->fecha;
-                                                        $horaInicioReserva = $r->hora_inicio instanceof \Carbon\Carbon ? $r->hora_inicio->format('H:i:s') : $r->hora_inicio;
-                                                        $horaFinReserva = $r->hora_fin instanceof \Carbon\Carbon ? $r->hora_fin->format('H:i:s') : $r->hora_fin;
-                                                        
-                                                        return $fechaReserva == $fechaActual && 
-                                                               $horaInicioReserva <= $horaInicio && 
-                                                               $horaFinReserva > $horaInicio;
-                                                    });
-                                                
-                                                $esAsignacion = $reservaEnHora ? str_contains($reservaEnHora->observaciones ?? '', 'Asignación administrativa') : false;
-                                                $colorClass = '';
-                                                if ($reservaEnHora) {
-                                                    $colorClass = match($reservaEnHora->estado) {
-                                                        'aprobada' => 'bg-emerald-100 border border-emerald-300 text-emerald-800',
-                                                        'pendiente' => 'bg-amber-100 border border-amber-300 text-amber-800',
-                                                        'cancelada' => 'bg-slate-100 border border-slate-300 text-slate-700',
-                                                        'rechazada' => 'bg-rose-100 border border-rose-300 text-rose-800',
-                                                        default => 'bg-slate-100 border border-slate-300 text-slate-700'
-                                                    };
-                                                } else {
-                                                    $colorClass = 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100';
-                                                }
-                                            @endphp
-                                            <div class="h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-{{ $aula->id }} {{ $colorClass }}"
-                                                 title="{{ $reservaEnHora ? ($esAsignacion ? 'Asignación: ' : 'Reserva: ') . $reservaEnHora->user->name . ' - ' . ucfirst($reservaEnHora->estado) . ($esAsignacion ? ' (Administrativa)' : '') . ' (' . date('H:i', strtotime($reservaEnHora->hora_inicio)) . '-' . date('H:i', strtotime($reservaEnHora->hora_fin)) . ')' : 'Disponible para ' . $aula->nombre }}"
-                                                 data-hora="{{ $hora }}"
-                                                 data-aula="{{ $aula->id }}"
-                                                 data-fecha="{{ $fechaActual }}">
-                                                @if($reservaEnHora)
-                                                    <div class="text-center px-1">
-                                                        <div class="font-medium text-xs">{{ Str::limit($reservaEnHora->user->name, 10) }}</div>
-                                                        <div class="text-xs opacity-75">{{ date('H:i', strtotime($reservaEnHora->hora_inicio)) }}-{{ date('H:i', strtotime($reservaEnHora->hora_fin)) }}</div>
-                                                        @if($esAsignacion)
-                                                            <i class="fas fa-calendar-check text-xs opacity-80" title="Asignación administrativa"></i>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <div class="text-center">
-                                                        <i class="fas fa-check text-green-600 text-lg"></i>
-                                                        <div class="text-xs mt-1">Libre</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endfor
-                                
-                                <!-- Leyenda -->
-                                <div class="flex justify-center space-x-4 mt-4 text-xs">
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-green-50 border border-green-300 rounded mr-2"></div>
-                                        <span class="text-gray-600">Disponible</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-emerald-100 border border-emerald-300 rounded mr-2"></div>
-                                        <span class="text-gray-600">Aprobada</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-amber-100 border border-amber-300 rounded mr-2"></div>
-                                        <span class="text-gray-600">Pendiente</span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-slate-100 border border-slate-300 rounded mr-2"></div>
-                                        <span class="text-gray-600">Cancelada</span>
-                                    </div>
-                                </div>
+                        <!-- Leyenda -->
+                        <div class="mb-4 flex flex-wrap gap-3 text-sm">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-white border-2 border-gray-300 rounded"></div>
+                                <span>Libre</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                <span>Aprobada</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-orange-500 rounded"></div>
+                                <span>Pendiente</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-gray-500 rounded"></div>
+                                <span>Cancelada</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-4 h-4 bg-red-500 rounded"></div>
+                                <span>Rechazada</span>
                             </div>
                         </div>
                         
-                        <div class="mt-4 text-center">
-                            <a href="{{ route('calendario.index') }}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                Ver calendario completo →
-                            </a>
+                        <!-- Calendario -->
+                        <div class="overflow-x-auto">
+                            <div id="calendario-container" class="min-w-full">
+                                <div class="grid gap-1 text-sm" style="grid-template-columns: 80px repeat(7, 1fr);">
+                                    <!-- Cabecera -->
+                                    <div class="font-semibold text-center py-2">Hora</div>
+                                    @php
+                                        $diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+                                        $fechaInicio = Carbon\Carbon::now()->startOfWeek();
+                                    @endphp
+                                    @foreach($diasSemana as $index => $dia)
+                                        @php
+                                            $fechaDia = $fechaInicio->copy()->addDays($index);
+                                        @endphp
+                                        <div class="font-semibold text-center py-2 bg-gray-50 dia-header" data-dia="{{ $index }}">
+                                            <div class="font-bold">{{ $dia }}</div>
+                                            <div class="text-xs text-gray-500">{{ $fechaDia->format('d/m') }}</div>
+                                        </div>
+                                    @endforeach
+                                    
+                                    <!-- Contenido del calendario por horas -->
+                                    @for($hora = 8; $hora <= 18; $hora++)
+                                        <!-- Columna de hora -->
+                                        <div class="font-medium text-center py-3 bg-blue-50 rounded flex items-center justify-center">
+                                            <div class="text-center">
+                                                <div class="font-bold text-sm">{{ str_pad($hora, 2, '0', STR_PAD_LEFT) }}:00</div>
+                                                <div class="text-xs text-gray-500">{{ str_pad($hora + 1, 2, '0', STR_PAD_LEFT) }}:00</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Columnas de días para esta hora -->
+                                        @for($dia = 0; $dia < 7; $dia++)
+                                            @php
+                                                $horaInicio = str_pad($hora, 2, '0', STR_PAD_LEFT) . ':00:00';
+                                                $fechaDia = $fechaInicio->copy()->addDays($dia)->format('Y-m-d');
+                                                $aulaSeleccionada = $aulas->first(); // Por defecto la primera aula
+                                                
+                                                // Buscar reserva en esta hora y día para el aula seleccionada
+                                                $reservaEnHora = $reservasCalendario->first(function($reserva) use ($aulaSeleccionada, $fechaDia, $horaInicio) {
+                                                    $fechaReserva = $reserva->fecha instanceof \Carbon\Carbon ? $reserva->fecha->format('Y-m-d') : $reserva->fecha;
+                                                    $horaInicioReserva = $reserva->hora_inicio instanceof \Carbon\Carbon ? $reserva->hora_inicio->format('H:i:s') : $reserva->hora_inicio;
+                                                    $horaFinReserva = $reserva->hora_fin instanceof \Carbon\Carbon ? $reserva->hora_fin->format('H:i:s') : $reserva->hora_fin;
+                                                    
+                                                    return $reserva->aula_id == $aulaSeleccionada->id && 
+                                                           $fechaReserva == $fechaDia && 
+                                                           $horaInicioReserva <= $horaInicio && 
+                                                           $horaFinReserva > $horaInicio;
+                                                });
+                                            @endphp
+                                            
+                                            <div class="text-center py-2 border min-h-[60px] flex items-center justify-center calendario-slot dia-slot-{{ $dia }}" 
+                                                 data-dia="{{ $dia }}" 
+                                                 data-fecha="{{ $fechaDia }}"
+                                                 data-hora="{{ $hora }}"
+                                                 style="
+                                                    @if($reservaEnHora)
+                                                        @if($reservaEnHora->estado == 'aprobada')
+                                                            background-color: #10b981; color: white;
+                                                        @elseif($reservaEnHora->estado == 'pendiente')
+                                                            background-color: #f59e0b; color: white;
+                                                        @elseif($reservaEnHora->estado == 'cancelada')
+                                                            background-color: #6b7280; color: white;
+                                                        @else
+                                                            background-color: #ef4444; color: white;
+                                                        @endif
+                                                    @else
+                                                        background-color: #f8fafc; 
+                                                        border: 1px solid #e2e8f0; 
+                                                        color: #64748b;
+                                                    @endif
+                                                 ">
+                                                <div class="text-xs">
+                                                    @if($reservaEnHora)
+                                                        <div class="font-medium">{{ Str::limit($reservaEnHora->user->name, 10) }}</div>
+                                                        <div class="text-xs opacity-75">{{ date('H:i', strtotime($reservaEnHora->hora_inicio)) }}-{{ date('H:i', strtotime($reservaEnHora->hora_fin)) }}</div>
+                                                    @else
+                                                        <div class="text-gray-500">Libre</div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    @endfor
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Acciones rápidas -->
+                <!-- Acciones Rápidas (más pequeñas) -->
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6">
+                    <div class="p-4">
                         <h3 class="text-lg font-semibold mb-4">Acciones Rápidas</h3>
+                        
                         <div class="space-y-3">
-                            <a href="{{ route('reservas.create') }}" class="btn btn-blue block w-full" style="background-color: #3b82f6; color: white; padding: 0.75rem 1rem; border-radius: 0.375rem; font-weight: 500; text-decoration: none; display: block; text-align: center; transition: all 0.2s;">
+                            <a href="{{ route('reservas.create') }}" class="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center text-sm">
                                 Nueva Reserva
                             </a>
-                            <a href="{{ route('reservas.index') }}" class="btn btn-gray block w-full" style="background-color: #6b7280; color: white; padding: 0.75rem 1rem; border-radius: 0.375rem; font-weight: 500; text-decoration: none; display: block; text-align: center; transition: all 0.2s;">
-                                Ver Mis Reservas
+                            
+                            <a href="{{ route('reservas.index') }}" class="block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 text-center text-sm">
+                                Mis Reservas
                             </a>
+                            
+                            <a href="{{ route('calendario.index') }}" class="block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center text-sm">
+                                Ver Calendario
+                            </a>
+                            
                             @if(auth()->user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="btn btn-green block w-full" style="background-color: #10b981; color: white; padding: 0.75rem 1rem; border-radius: 0.375rem; font-weight: 500; text-decoration: none; display: block; text-align: center; transition: all 0.2s;">
-                                    Panel de Administración
+                                <a href="{{ route('admin.dashboard') }}" class="block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-center text-sm">
+                                    Panel Admin
                                 </a>
                             @endif
+                        </div>
+                        
+                        <!-- Estadísticas compactas -->
+                        <div class="mt-4 pt-4 border-t">
+                            <h4 class="font-semibold mb-2 text-sm">Estadísticas</h4>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-blue-100 p-2 rounded">
+                                    <div class="font-semibold">{{ $totalReservas }}</div>
+                                    <div class="text-gray-600">Total Reservas</div>
+                                </div>
+                                <div class="bg-green-100 p-2 rounded">
+                                    <div class="font-semibold">{{ $reservasConfirmadas }}</div>
+                                    <div class="text-gray-600">Aprobadas</div>
+                                </div>
+                                <div class="bg-orange-100 p-2 rounded">
+                                    <div class="font-semibold">{{ $reservasPendientes }}</div>
+                                    <div class="text-gray-600">Pendientes</div>
+                                </div>
+                                <div class="bg-gray-100 p-2 rounded">
+                                    <div class="font-semibold">{{ $aulas->count() }}</div>
+                                    <div class="text-gray-600">Aulas</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -227,155 +268,198 @@
     </div>
     
     <script>
-        // Funcionalidad de filtros y actualización en tiempo real
+        // Funcionalidad de filtros para el calendario
         document.addEventListener('DOMContentLoaded', function() {
-            const fechaFiltro = document.getElementById('fecha-filtro');
-            const aulaFiltro = document.getElementById('aula-filtro');
+            const filtroAula = document.getElementById('filtro-aula');
+            const filtroFecha = document.getElementById('filtro-fecha');
+            const aplicarFiltros = document.getElementById('aplicar-filtros');
+            const nombreAulaActual = document.getElementById('nombre-aula-actual');
             
-            function actualizarCalendario() {
-                const fechaSeleccionada = fechaFiltro.value;
-                const aulaSeleccionada = aulaFiltro.value;
+            // Datos de aulas para el filtro
+            const aulasData = {
+                @foreach($aulas as $aula)
+                    "{{ $aula->id }}": "{{ $aula->nombre }}",
+                @endforeach
+            };
+            
+            // Función para aplicar filtros
+            function aplicarFiltrosCalendario() {
+                const aulaSeleccionada = filtroAula.value;
+                const fechaSeleccionada = filtroFecha.value;
+                
+                // Actualizar el nombre del aula en el título
+                if (aulaSeleccionada && aulasData[aulaSeleccionada]) {
+                    nombreAulaActual.textContent = aulasData[aulaSeleccionada];
+                } else {
+                    nombreAulaActual.textContent = 'Selecciona un aula';
+                }
+                
+                // Si no hay aula seleccionada, no hacer la petición
+                if (!aulaSeleccionada) {
+                    return;
+                }
                 
                 // Realizar petición AJAX para obtener datos actualizados
-                fetch(`/api/calendario-data?fecha=${fechaSeleccionada}&aula=${aulaSeleccionada}`, {
+                const url = `/api/calendario/datos?aula_id=${aulaSeleccionada}&fecha=${fechaSeleccionada}`;
+                
+                fetch(url, {
                     method: 'GET',
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    actualizarVistaCalendario(data);
+                    if (data.success) {
+                        actualizarCalendario(data);
+                    } else {
+                        console.error('Error en los datos:', data);
+                    }
                 })
                 .catch(error => {
-                    console.log('Actualizando vista con filtros locales...');
-                    aplicarFiltrosLocales();
+                    console.error('Error al obtener datos:', error);
+                    // En caso de error, mostrar todos los slots como libres
+                    mostrarTodosLibres();
                 });
             }
             
-            function aplicarFiltrosLocales() {
-                const aulaSeleccionada = aulaFiltro.value;
+            // Función para actualizar el calendario con nuevos datos
+            function actualizarCalendario(data) {
+                // Primero, resetear todos los slots a libre
+                mostrarTodosLibres();
                 
-                // Mostrar/ocultar columnas de aulas
-                const aulasHeaders = document.querySelectorAll('.aula-header');
-                const todasLasFilas = document.querySelectorAll('.hora-row');
-                
-                aulasHeaders.forEach((header, index) => {
-                    const aulaId = header.dataset.aulaId;
-                    const mostrar = aulaSeleccionada === '' || aulaSeleccionada === aulaId;
-                    
-                    // Mostrar/ocultar header
-                    header.style.display = mostrar ? 'block' : 'none';
-                    
-                    // Mostrar/ocultar slots correspondientes en cada fila
-                    todasLasFilas.forEach(fila => {
-                        const slots = fila.querySelectorAll(`.aula-slot-${aulaId}`);
+                // Luego, actualizar los que tienen reservas
+                if (data.reservas && data.reservas.length > 0) {
+                    data.reservas.forEach(reserva => {
+                        const slots = document.querySelectorAll('.calendario-slot');
+                        
                         slots.forEach(slot => {
-                            slot.style.display = mostrar ? 'flex' : 'none';
+                            const fecha = slot.getAttribute('data-fecha');
+                            const hora = parseInt(slot.getAttribute('data-hora'));
+                            
+                            // Verificar si esta reserva aplica a este slot
+                            const horaInicioReserva = parseInt(reserva.hora_inicio.split(':')[0]);
+                            const horaFinReserva = parseInt(reserva.hora_fin.split(':')[0]);
+                            
+                            if (reserva.fecha === fecha && hora >= horaInicioReserva && hora < horaFinReserva) {
+                                // Aplicar estilos según el estado de la reserva
+                                let backgroundColor = '#f8fafc';
+                                let color = '#64748b';
+                                
+                                switch(reserva.estado) {
+                                    case 'aprobada':
+                                        backgroundColor = '#10b981';
+                                        color = 'white';
+                                        break;
+                                    case 'pendiente':
+                                        backgroundColor = '#f59e0b';
+                                        color = 'white';
+                                        break;
+                                    case 'cancelada':
+                                        backgroundColor = '#6b7280';
+                                        color = 'white';
+                                        break;
+                                    default:
+                                        backgroundColor = '#ef4444';
+                                        color = 'white';
+                                }
+                                
+                                slot.style.backgroundColor = backgroundColor;
+                                slot.style.color = color;
+                                slot.style.border = '1px solid ' + backgroundColor;
+                                
+                                slot.innerHTML = `
+                                    <div class="text-xs">
+                                        <div class="font-medium">${reserva.profesor.substring(0, 10)}</div>
+                                        <div class="text-xs opacity-75">${reserva.hora_inicio.substring(0, 5)}-${reserva.hora_fin.substring(0, 5)}</div>
+                                    </div>
+                                `;
+                            }
                         });
                     });
-                });
-                
-                // Ajustar grid columns dinámicamente
-                const aulasVisibles = document.querySelectorAll('.aula-header:not([style*="display: none"])').length;
-                const gridCols = `80px repeat(${aulasVisibles}, 1fr)`;
-                
-                document.querySelectorAll('[style*="grid-template-columns"]').forEach(element => {
-                    element.style.gridTemplateColumns = gridCols;
+                }
+            }
+            
+            // Función para mostrar todos los slots como libres
+            function mostrarTodosLibres() {
+                const slots = document.querySelectorAll('.calendario-slot');
+                slots.forEach(slot => {
+                    slot.style.backgroundColor = '#f8fafc';
+                    slot.style.color = '#64748b';
+                    slot.style.border = '1px solid #e2e8f0';
+                    slot.innerHTML = `
+                        <div class="text-xs">
+                            <div class="text-gray-500">Libre</div>
+                        </div>
+                    `;
                 });
             }
             
-            function actualizarVistaCalendario(data) {
-                // Limpiar todos los slots primero
-                document.querySelectorAll('.hora-slot').forEach(slot => {
-                    const aula = slot.dataset.aula;
-                    const aulaObj = data.aulas.find(a => a.id == aula);
-                    if (aulaObj) {
-                        slot.className = 'h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-' + aula + ' bg-green-50 border border-green-300 text-green-700 hover:bg-green-100';
-                        slot.innerHTML = `
-                            <div class="text-center">
-                                <i class="fas fa-check text-green-600 text-lg"></i>
-                                <div class="text-xs mt-1">Libre</div>
-                            </div>
-                        `;
-                        slot.title = `Disponible para ${aulaObj.nombre}`;
-                    }
-                });
-                
-                // Actualizar slots con reservas usando la misma lógica del servidor
-                data.reservas.forEach(reserva => {
-                    const slot = document.querySelector(`[data-aula="${reserva.aula_id}"][data-hora="${reserva.hora}"]`);
-                    if (slot) {
-                        const esAsignacion = reserva.observaciones && reserva.observaciones.includes('Asignación administrativa');
-                        
-                        // Aplicar colores según el estado (igual que el servidor)
-                        let colorClass = '';
-                        switch(reserva.estado) {
-                            case 'aprobada':
-                                colorClass = 'bg-emerald-100 border border-emerald-300 text-emerald-800';
-                                break;
-                            case 'pendiente':
-                                colorClass = 'bg-amber-100 border border-amber-300 text-amber-800';
-                                break;
-                            case 'cancelada':
-                                colorClass = 'bg-slate-100 border border-slate-300 text-slate-700';
-                                break;
-                            case 'rechazada':
-                                colorClass = 'bg-rose-100 border border-rose-300 text-rose-800';
-                                break;
-                            default:
-                                colorClass = 'bg-slate-100 border border-slate-300 text-slate-700';
-                        }
-                        
-                        slot.className = `h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-${reserva.aula_id} ${colorClass}`;
-                        
-                        const asignacionIcon = esAsignacion ? '<i class="fas fa-calendar-check text-xs opacity-80" title="Asignación administrativa"></i>' : '';
-                        slot.innerHTML = `
-                            <div class="text-center px-1">
-                                <div class="font-medium text-xs">${reserva.profesor_nombre.substring(0, 10)}</div>
-                                <div class="text-xs opacity-75">${reserva.hora_inicio}-${reserva.hora_fin}</div>
-                                ${asignacionIcon}
-                            </div>
-                        `;
-                        
-                        const tipoReserva = esAsignacion ? 'Asignación: ' : 'Reserva: ';
-                        const estadoTexto = reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1);
-                        const adminTexto = esAsignacion ? ' (Administrativa)' : '';
-                        slot.title = `${tipoReserva}${reserva.profesor_nombre} - ${estadoTexto}${adminTexto} (${reserva.hora_inicio}-${reserva.hora_fin})`;
-                    }
-                });
-                
-                aplicarFiltrosLocales();
+            // Event listeners para filtros
+            if (aplicarFiltros) {
+                aplicarFiltros.addEventListener('click', aplicarFiltrosCalendario);
             }
             
-            // Event listeners
-            fechaFiltro.addEventListener('change', actualizarCalendario);
-            aulaFiltro.addEventListener('change', aplicarFiltrosLocales);
-            
-            // Actualizar cada 30 segundos para datos en tiempo real
-            setInterval(actualizarCalendario, 30000);
-            
-            // Tooltips mejorados
-            const slots = document.querySelectorAll('.hora-slot');
-            slots.forEach(slot => {
-                slot.addEventListener('mouseenter', function() {
-                    const titulo = this.getAttribute('title');
-                    if (titulo && titulo !== '') {
-                        this.style.transform = 'scale(1.05)';
-                        this.style.zIndex = '10';
-                    }
-                });
-                
-                slot.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                    this.style.zIndex = '1';
-                });
+            // Aplicar filtros al cambiar selección
+            filtroAula.addEventListener('change', function() {
+                // Actualizar nombre del aula inmediatamente
+                if (this.value && aulasData[this.value]) {
+                    nombreAulaActual.textContent = aulasData[this.value];
+                } else {
+                    nombreAulaActual.textContent = 'Selecciona un aula';
+                }
+                // Aplicar filtros con la nueva selección
+                aplicarFiltrosCalendario();
             });
             
-            // Aplicar filtros iniciales
-            aplicarFiltrosLocales();
+            filtroFecha.addEventListener('change', function() {
+                // Aplicar filtros con la nueva fecha
+                aplicarFiltrosCalendario();
+            });
+            
+            // Inicializar con la primera aula seleccionada
+            if (filtroAula.value && aulasData[filtroAula.value]) {
+                nombreAulaActual.textContent = aulasData[filtroAula.value];
+                // Cargar datos iniciales
+                setTimeout(() => {
+                    aplicarFiltrosCalendario();
+                }, 100);
+            }
+            
+            // Mejorar visualización de slots
+            function aplicarEfectosHover() {
+                const slots = document.querySelectorAll('.calendario-slot');
+                slots.forEach(slot => {
+                    slot.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.05)';
+                        this.style.zIndex = '10';
+                        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                    });
+                    
+                    slot.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.zIndex = '1';
+                        this.style.boxShadow = 'none';
+                    });
+                });
+            }
+            
+            // Aplicar efectos iniciales
+            aplicarEfectosHover();
+            
+            // Actualizar datos cada 60 segundos para reflejar cambios
+            setInterval(function() {
+                if (filtroAula.value) {
+                    aplicarFiltrosCalendario();
+                }
+            }, 60000);
         });
     </script>
     
