@@ -25,15 +25,15 @@
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-center">
-                        <div class="text-3xl font-bold text-green-600">{{ $reservas->where('estado', 'aprobada')->count() }}</div>
-                        <div class="text-gray-600">Reservas Aprobadas</div>
+                        <div class="text-3xl font-bold text-green-600">{{ $reservasCalendario->count() }}</div>
+                        <div class="text-gray-600">Reservas Hoy</div>
                     </div>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-center">
                         <div class="text-3xl font-bold text-yellow-600">{{ $reservas->where('estado', 'pendiente')->count() }}</div>
-                        <div class="text-gray-600">Reservas Pendientes</div>
+                        <div class="text-gray-600">Mis Pendientes</div>
                     </div>
                 </div>
             </div>
@@ -85,27 +85,47 @@
                                         </div>
                                         @foreach($aulas->take(8) as $aula)
                                             @php
-                                                $horaFormateada = str_pad($hora, 2, '0', STR_PAD_LEFT) . ':00:00';
-                                                $horaFin = str_pad($hora + 1, 2, '0', STR_PAD_LEFT) . ':00:00';
+                                                $horaInicio = str_pad($hora, 2, '0', STR_PAD_LEFT) . ':00:00';
                                                 $fechaActual = request('fecha', today()->format('Y-m-d'));
-                                                $reservaEnHora = $reservas->where('aula_id', $aula->id)
-                                                    ->where('fecha', $fechaActual)
-                                                    ->where('estado', 'aprobada')
-                                                    ->filter(function($reserva) use ($horaFormateada, $horaFin) {
-                                                        return $reserva->hora_inicio < $horaFin && $reserva->hora_fin > $horaFormateada;
-                                                    })
-                                                    ->first();
+                                                
+                                                // Usar la misma lógica que el calendario principal
+                                                $reservaEnHora = $reservasCalendario->where('aula_id', $aula->id)
+                                                    ->first(function($r) use ($fechaActual, $horaInicio) {
+                                                        $fechaReserva = $r->fecha instanceof \Carbon\Carbon ? $r->fecha->format('Y-m-d') : $r->fecha;
+                                                        $horaInicioReserva = $r->hora_inicio instanceof \Carbon\Carbon ? $r->hora_inicio->format('H:i:s') : $r->hora_inicio;
+                                                        $horaFinReserva = $r->hora_fin instanceof \Carbon\Carbon ? $r->hora_fin->format('H:i:s') : $r->hora_fin;
+                                                        
+                                                        return $fechaReserva == $fechaActual && 
+                                                               $horaInicioReserva <= $horaInicio && 
+                                                               $horaFinReserva > $horaInicio;
+                                                    });
+                                                
+                                                $esAsignacion = $reservaEnHora ? str_contains($reservaEnHora->observaciones ?? '', 'Asignación administrativa') : false;
+                                                $colorClass = '';
+                                                if ($reservaEnHora) {
+                                                    $colorClass = match($reservaEnHora->estado) {
+                                                        'aprobada' => 'bg-emerald-100 border border-emerald-300 text-emerald-800',
+                                                        'pendiente' => 'bg-amber-100 border border-amber-300 text-amber-800',
+                                                        'cancelada' => 'bg-slate-100 border border-slate-300 text-slate-700',
+                                                        'rechazada' => 'bg-rose-100 border border-rose-300 text-rose-800',
+                                                        default => 'bg-slate-100 border border-slate-300 text-slate-700'
+                                                    };
+                                                } else {
+                                                    $colorClass = 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100';
+                                                }
                                             @endphp
-                                            <div class="h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-{{ $aula->id }}
-                                                 {{ $reservaEnHora ? 'bg-red-100 border border-red-300 text-red-800' : 'bg-green-50 border border-green-300 text-green-700 hover:bg-green-100' }}"
-                                                 title="{{ $reservaEnHora ? $reservaEnHora->user->name . ' - ' . $reservaEnHora->motivo . ' (' . date('H:i', strtotime($reservaEnHora->hora_inicio)) . '-' . date('H:i', strtotime($reservaEnHora->hora_fin)) . ')' : 'Disponible para ' . $aula->nombre }}"
+                                            <div class="h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-{{ $aula->id }} {{ $colorClass }}"
+                                                 title="{{ $reservaEnHora ? ($esAsignacion ? 'Asignación: ' : 'Reserva: ') . $reservaEnHora->user->name . ' - ' . ucfirst($reservaEnHora->estado) . ($esAsignacion ? ' (Administrativa)' : '') . ' (' . date('H:i', strtotime($reservaEnHora->hora_inicio)) . '-' . date('H:i', strtotime($reservaEnHora->hora_fin)) . ')' : 'Disponible para ' . $aula->nombre }}"
                                                  data-hora="{{ $hora }}"
                                                  data-aula="{{ $aula->id }}"
                                                  data-fecha="{{ $fechaActual }}">
                                                 @if($reservaEnHora)
                                                     <div class="text-center px-1">
-                                                        <div class="font-medium text-xs">{{ Str::limit($reservaEnHora->user->name, 12) }}</div>
+                                                        <div class="font-medium text-xs">{{ Str::limit($reservaEnHora->user->name, 10) }}</div>
                                                         <div class="text-xs opacity-75">{{ date('H:i', strtotime($reservaEnHora->hora_inicio)) }}-{{ date('H:i', strtotime($reservaEnHora->hora_fin)) }}</div>
+                                                        @if($esAsignacion)
+                                                            <i class="fas fa-calendar-check text-xs opacity-80" title="Asignación administrativa"></i>
+                                                        @endif
                                                     </div>
                                                 @else
                                                     <div class="text-center">
@@ -119,14 +139,22 @@
                                 @endfor
                                 
                                 <!-- Leyenda -->
-                                <div class="flex justify-center space-x-6 mt-4 text-xs">
+                                <div class="flex justify-center space-x-4 mt-4 text-xs">
                                     <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-green-50 border-l-2 border-green-400 rounded mr-2"></div>
+                                        <div class="w-4 h-4 bg-green-50 border border-green-300 rounded mr-2"></div>
                                         <span class="text-gray-600">Disponible</span>
                                     </div>
                                     <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-red-100 border-l-2 border-red-400 rounded mr-2"></div>
-                                        <span class="text-gray-600">Ocupada</span>
+                                        <div class="w-4 h-4 bg-emerald-100 border border-emerald-300 rounded mr-2"></div>
+                                        <span class="text-gray-600">Aprobada</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-amber-100 border border-amber-300 rounded mr-2"></div>
+                                        <span class="text-gray-600">Pendiente</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-slate-100 border border-slate-300 rounded mr-2"></div>
+                                        <span class="text-gray-600">Cancelada</span>
                                     </div>
                                 </div>
                             </div>
@@ -260,18 +288,62 @@
             }
             
             function actualizarVistaCalendario(data) {
-                // Actualizar slots con nuevos datos
+                // Limpiar todos los slots primero
+                document.querySelectorAll('.hora-slot').forEach(slot => {
+                    const aula = slot.dataset.aula;
+                    const aulaObj = data.aulas.find(a => a.id == aula);
+                    if (aulaObj) {
+                        slot.className = 'h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-' + aula + ' bg-green-50 border border-green-300 text-green-700 hover:bg-green-100';
+                        slot.innerHTML = `
+                            <div class="text-center">
+                                <i class="fas fa-check text-green-600 text-lg"></i>
+                                <div class="text-xs mt-1">Libre</div>
+                            </div>
+                        `;
+                        slot.title = `Disponible para ${aulaObj.nombre}`;
+                    }
+                });
+                
+                // Actualizar slots con reservas usando la misma lógica del servidor
                 data.reservas.forEach(reserva => {
                     const slot = document.querySelector(`[data-aula="${reserva.aula_id}"][data-hora="${reserva.hora}"]`);
                     if (slot) {
-                        slot.className = 'h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot bg-red-100 border border-red-300 text-red-800';
+                        const esAsignacion = reserva.observaciones && reserva.observaciones.includes('Asignación administrativa');
+                        
+                        // Aplicar colores según el estado (igual que el servidor)
+                        let colorClass = '';
+                        switch(reserva.estado) {
+                            case 'aprobada':
+                                colorClass = 'bg-emerald-100 border border-emerald-300 text-emerald-800';
+                                break;
+                            case 'pendiente':
+                                colorClass = 'bg-amber-100 border border-amber-300 text-amber-800';
+                                break;
+                            case 'cancelada':
+                                colorClass = 'bg-slate-100 border border-slate-300 text-slate-700';
+                                break;
+                            case 'rechazada':
+                                colorClass = 'bg-rose-100 border border-rose-300 text-rose-800';
+                                break;
+                            default:
+                                colorClass = 'bg-slate-100 border border-slate-300 text-slate-700';
+                        }
+                        
+                        slot.className = `h-14 rounded text-xs flex items-center justify-center cursor-pointer transition-colors duration-200 hora-slot aula-slot-${reserva.aula_id} ${colorClass}`;
+                        
+                        const asignacionIcon = esAsignacion ? '<i class="fas fa-calendar-check text-xs opacity-80" title="Asignación administrativa"></i>' : '';
                         slot.innerHTML = `
                             <div class="text-center px-1">
-                                <div class="font-medium text-xs">${reserva.profesor_nombre}</div>
+                                <div class="font-medium text-xs">${reserva.profesor_nombre.substring(0, 10)}</div>
                                 <div class="text-xs opacity-75">${reserva.hora_inicio}-${reserva.hora_fin}</div>
+                                ${asignacionIcon}
                             </div>
                         `;
-                        slot.title = `${reserva.profesor_nombre} - ${reserva.motivo} (${reserva.hora_inicio}-${reserva.hora_fin})`;
+                        
+                        const tipoReserva = esAsignacion ? 'Asignación: ' : 'Reserva: ';
+                        const estadoTexto = reserva.estado.charAt(0).toUpperCase() + reserva.estado.slice(1);
+                        const adminTexto = esAsignacion ? ' (Administrativa)' : '';
+                        slot.title = `${tipoReserva}${reserva.profesor_nombre} - ${estadoTexto}${adminTexto} (${reserva.hora_inicio}-${reserva.hora_fin})`;
                     }
                 });
                 

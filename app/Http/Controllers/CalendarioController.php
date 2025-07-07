@@ -329,37 +329,55 @@ class CalendarioController extends Controller
         if ($aulaId) {
             $aulasQuery->where('id', $aulaId);
         }
-        $aulas = $aulasQuery->get();
+        $aulas = $aulasQuery->take(8)->get(); // Limitamos a 8 aulas para el home
         
-        // Obtener reservas del día
+        // Obtener reservas del día seleccionado (igual que el calendario principal)
         $reservasQuery = Reserva::where('fecha', $fecha)
-            ->where('estado', 'aprobada')
+            ->whereIn('estado', ['aprobada', 'pendiente', 'cancelada']) // Incluir todos los estados como el calendario principal
             ->with(['user', 'aula']);
             
         if ($aulaId) {
             $reservasQuery->where('aula_id', $aulaId);
+        } else {
+            // Solo reservas de las aulas que se muestran
+            $reservasQuery->whereIn('aula_id', $aulas->pluck('id'));
         }
         
         $reservas = $reservasQuery->get();
         
-        // Formatear datos para el calendario
-        $reservasFormateadas = $reservas->map(function($reserva) {
-            $horaInicio = Carbon::parse($reserva->hora_inicio);
-            return [
-                'aula_id' => $reserva->aula_id,
-                'hora' => $horaInicio->hour,
-                'hora_inicio' => $horaInicio->format('H:i'),
-                'hora_fin' => Carbon::parse($reserva->hora_fin)->format('H:i'),
-                'profesor_nombre' => $reserva->user->name,
-                'motivo' => $reserva->motivo,
-                'estado' => $reserva->estado
-            ];
-        });
+        // Formatear datos para el calendario (usando la misma lógica que el servidor)
+        $reservasFormateadas = [];
+        foreach($reservas as $reserva) {
+            $horaInicio = \Carbon\Carbon::parse($reserva->hora_inicio);
+            $horaFin = \Carbon\Carbon::parse($reserva->hora_fin);
+            
+            // Generar slots para cada hora que abarca la reserva
+            for ($hora = $horaInicio->hour; $hora < $horaFin->hour; $hora++) {
+                $reservasFormateadas[] = [
+                    'id' => $reserva->id,
+                    'aula_id' => $reserva->aula_id,
+                    'hora' => $hora,
+                    'hora_inicio' => $horaInicio->format('H:i'),
+                    'hora_fin' => $horaFin->format('H:i'),
+                    'profesor_nombre' => $reserva->user->name,
+                    'motivo' => $reserva->motivo,
+                    'estado' => $reserva->estado,
+                    'observaciones' => $reserva->observaciones,
+                    'es_asignacion' => str_contains($reserva->observaciones ?? '', 'Asignación administrativa')
+                ];
+            }
+        }
         
         return response()->json([
             'success' => true,
             'fecha' => $fecha,
-            'aulas' => $aulas,
+            'aulas' => $aulas->map(function($aula) {
+                return [
+                    'id' => $aula->id,
+                    'nombre' => $aula->nombre,
+                    'codigo' => $aula->codigo
+                ];
+            }),
             'reservas' => $reservasFormateadas,
             'timestamp' => now()->timestamp
         ]);
