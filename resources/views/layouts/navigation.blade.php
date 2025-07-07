@@ -1,17 +1,13 @@
-<nav class="bg-white border-b border-gray-100" style="background-color: white; border-bottom: 1px solid #e5e7eb; display: block;">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style="max-width: 80rem; margin: 0 auto; padding: 0 1rem;">
-        <div class="flex justify-between h-16" style="display: flex; justify-content: space-between; align-items: center; height: 4rem;">
-            <div class="flex" style="display: flex; align-items: center;">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center" style="flex-shrink: 0; display: flex; align-items: center;">
-                    <a href="{{ route('dashboard') }}">
-                        <img src="{{ asset('images/logo.png') }}" alt="Logo" style="height: 40px; width: 40px;" class="rounded-full shadow">
-                    </a>
-                </div>
-
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex" style="display: flex; margin-left: 2.5rem;">
+<nav class="bg-white border-b border-gray-100 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            <!-- Logo y menú hamburguesa -->
+            <div class="flex items-center">
+                <a href="{{ route('dashboard') }}">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-10 w-10 rounded-full shadow">
+                </a>
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex space-x-8 ml-10">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -39,124 +35,102 @@
                     @endif
                 </div>
             </div>
-
-            <!-- User Actions with Icons -->
-            <div class="hidden sm:flex sm:items-center sm:space-x-4" style="display: flex; align-items: center; gap: 1rem;">
-                <!-- User Name -->
-                <span class="text-gray-700 font-medium" style="color: #374151; font-weight: 500;">{{ Auth::user()->name }}</span>
-                
-                <!-- Notificaciones -->
-                <div class="relative" style="position: relative;">
-                    <a href="{{ route('notificaciones.index') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; text-decoration: none; display: inline-block;" title="Notificaciones">
+            <!-- Botón hamburguesa -->
+            <div class="flex md:hidden">
+                <button id="mobile-menu-button" class="text-gray-700 focus:outline-none" aria-label="Abrir menú">
+                    <svg id="hamburger-open" class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="hamburger-close" class="h-7 w-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <!-- Acciones usuario desktop -->
+            <div class="hidden md:flex items-center space-x-4">
+                <span class="text-gray-700 font-medium">{{ Auth::user()->name }}</span>
+                <div class="relative">
+                    <a href="{{ route('notificaciones.index') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" title="Notificaciones">
                         <i class="fas fa-bell text-lg"></i>
                         @if(auth()->user()->notificacionesNoLeidas()->count() > 0)
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" style="position: absolute; top: -4px; right: -4px; background-color: #ef4444; color: white; font-size: 0.75rem; border-radius: 50%; height: 20px; width: 20px; display: flex; align-items: center; justify-content: center;">
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                                 {{ auth()->user()->notificacionesNoLeidas()->count() }}
                             </span>
                         @endif
                     </a>
                 </div>
-
-                <!-- Profile Icon -->
-                <a href="{{ route('profile.edit') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; text-decoration: none; display: inline-block;" title="Perfil">
+                <a href="{{ route('profile.edit') }}" class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100 transition" title="Perfil">
                     <i class="fas fa-user text-lg"></i>
                 </a>
-
-                <!-- Logout Icon -->
-                <form method="POST" action="{{ route('logout') }}" class="inline" style="display: inline;">
+                <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button type="submit" class="text-gray-500 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition" style="color: #6b7280; padding: 0.5rem; border-radius: 9999px; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center;" title="Cerrar Sesión">
+                    <button type="submit" class="text-gray-500 hover:text-red-600 p-2 rounded-full hover:bg-gray-100 transition" title="Cerrar Sesión">
                         <i class="fas fa-sign-out-alt text-lg"></i>
                     </button>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div id="mobile-menu" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
+    <!-- Menú móvil -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-200 w-full z-50 absolute left-0">
+        <div class="pt-2 pb-3 space-y-1 flex flex-col px-4">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('calendario.index')" :active="request()->routeIs('calendario.*')">
                 {{ __('Calendario') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reservas.index')" :active="request()->routeIs('reservas.*')">
-                {{ __('Mis Reservas') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('reservas.create')" :active="request()->routeIs('reservas.create')">
-                {{ __('Nueva Reserva') }}
-            </x-responsive-nav-link>
+            @if(auth()->user()->isProfesor())
+                <x-responsive-nav-link :href="route('reservas.index')" :active="request()->routeIs('reservas.*')">
+                    {{ __('Mis Reservas') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('reservas.create')" :active="request()->routeIs('reservas.create')">
+                    {{ __('Nueva Reserva') }}
+                </x-responsive-nav-link>
+            @endif
             @if(auth()->user()->isAdmin())
-                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
+                <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
                     {{ __('Panel Admin') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.profesores.index')" :active="request()->routeIs('admin.profesores.*')">
+                    {{ __('Profesores') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.asignaciones.index')" :active="request()->routeIs('admin.asignaciones.*')">
+                    {{ __('Asignar Horarios') }}
                 </x-responsive-nav-link>
             @endif
         </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
+        <div class="pt-4 pb-1 border-t border-gray-200 px-4">
+            <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+            <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Perfil') }}
                 </x-responsive-nav-link>
-
-                <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                            onclick="event.preventDefault(); this.closest('form').submit();">
+                        {{ __('Cerrar Sesión') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
         </div>
     </div>
 </nav>
-
 <script>
-// Funciones para el menú de usuario
-function toggleUserMenu() {
-    const menu = document.getElementById('user-menu');
-    menu.classList.toggle('hidden');
+// Menú hamburguesa responsive
+const mobileMenuBtn = document.getElementById('mobile-menu-button');
+const mobileMenu = document.getElementById('mobile-menu');
+const hamburgerOpen = document.getElementById('hamburger-open');
+const hamburgerClose = document.getElementById('hamburger-close');
+if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', function() {
+        mobileMenu.classList.toggle('hidden');
+        hamburgerOpen.classList.toggle('hidden');
+        hamburgerClose.classList.toggle('hidden');
+    });
 }
-
-function toggleMobileMenu() {
-    const menu = document.getElementById('mobile-menu');
-    const openIcon = document.getElementById('hamburger-open');
-    const closeIcon = document.getElementById('hamburger-close');
-    
-    menu.classList.toggle('hidden');
-    openIcon.classList.toggle('hidden');
-    closeIcon.classList.toggle('hidden');
-}
-
-// Cerrar menú cuando se hace click fuera
-document.addEventListener('click', function(event) {
-    const userMenu = document.getElementById('user-menu');
-    const userMenuButton = document.getElementById('user-menu-button');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    
-    // Cerrar menú de usuario si el click es fuera del menú
-    if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
-        userMenu.classList.add('hidden');
-    }
-    
-    // Cerrar menú móvil si el click es fuera del menú
-    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-        mobileMenu.classList.add('hidden');
-        document.getElementById('hamburger-open').classList.remove('hidden');
-        document.getElementById('hamburger-close').classList.add('hidden');
-    }
-});
 </script>
 
 <!-- Notificaciones Flotantes -->

@@ -294,8 +294,13 @@
                     nombreAulaActual.textContent = 'Selecciona un aula';
                 }
                 
+                // Si no hay aula seleccionada, no hacer la petición
+                if (!aulaSeleccionada) {
+                    return;
+                }
+                
                 // Realizar petición AJAX para obtener datos actualizados
-                const url = `/api/calendario-data?aula=${aulaSeleccionada}&fecha=${fechaSeleccionada}`;
+                const url = `/api/calendario/datos?aula_id=${aulaSeleccionada}&fecha=${fechaSeleccionada}`;
                 
                 fetch(url, {
                     method: 'GET',
@@ -305,75 +310,95 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    actualizarCalendario(data);
+                    if (data.success) {
+                        actualizarCalendario(data);
+                    } else {
+                        console.error('Error en los datos:', data);
+                    }
                 })
                 .catch(error => {
-                    console.log('Error al obtener datos:', error);
-                    // Recargar la página como fallback
-                    location.reload();
+                    console.error('Error al obtener datos:', error);
+                    // En caso de error, mostrar todos los slots como libres
+                    mostrarTodosLibres();
                 });
             }
             
             // Función para actualizar el calendario con nuevos datos
             function actualizarCalendario(data) {
-                const slots = document.querySelectorAll('.calendario-slot');
+                // Primero, resetear todos los slots a libre
+                mostrarTodosLibres();
                 
+                // Luego, actualizar los que tienen reservas
+                if (data.reservas && data.reservas.length > 0) {
+                    data.reservas.forEach(reserva => {
+                        const slots = document.querySelectorAll('.calendario-slot');
+                        
+                        slots.forEach(slot => {
+                            const fecha = slot.getAttribute('data-fecha');
+                            const hora = parseInt(slot.getAttribute('data-hora'));
+                            
+                            // Verificar si esta reserva aplica a este slot
+                            const horaInicioReserva = parseInt(reserva.hora_inicio.split(':')[0]);
+                            const horaFinReserva = parseInt(reserva.hora_fin.split(':')[0]);
+                            
+                            if (reserva.fecha === fecha && hora >= horaInicioReserva && hora < horaFinReserva) {
+                                // Aplicar estilos según el estado de la reserva
+                                let backgroundColor = '#f8fafc';
+                                let color = '#64748b';
+                                
+                                switch(reserva.estado) {
+                                    case 'aprobada':
+                                        backgroundColor = '#10b981';
+                                        color = 'white';
+                                        break;
+                                    case 'pendiente':
+                                        backgroundColor = '#f59e0b';
+                                        color = 'white';
+                                        break;
+                                    case 'cancelada':
+                                        backgroundColor = '#6b7280';
+                                        color = 'white';
+                                        break;
+                                    default:
+                                        backgroundColor = '#ef4444';
+                                        color = 'white';
+                                }
+                                
+                                slot.style.backgroundColor = backgroundColor;
+                                slot.style.color = color;
+                                slot.style.border = '1px solid ' + backgroundColor;
+                                
+                                slot.innerHTML = `
+                                    <div class="text-xs">
+                                        <div class="font-medium">${reserva.profesor.substring(0, 10)}</div>
+                                        <div class="text-xs opacity-75">${reserva.hora_inicio.substring(0, 5)}-${reserva.hora_fin.substring(0, 5)}</div>
+                                    </div>
+                                `;
+                            }
+                        });
+                    });
+                }
+            }
+            
+            // Función para mostrar todos los slots como libres
+            function mostrarTodosLibres() {
+                const slots = document.querySelectorAll('.calendario-slot');
                 slots.forEach(slot => {
-                    const dia = slot.getAttribute('data-dia');
-                    const fecha = slot.getAttribute('data-fecha');
-                    const hora = slot.getAttribute('data-hora');
-                    
-                    // Buscar si hay reserva para este slot
-                    const reserva = data.reservas?.find(r => 
-                        r.fecha === fecha && 
-                        r.hora_inicio <= hora + ':00:00' && 
-                        r.hora_fin > hora + ':00:00'
-                    );
-                    
-                    if (reserva) {
-                        // Aplicar estilos según el estado de la reserva
-                        let backgroundColor = '#f8fafc';
-                        let color = '#64748b';
-                        
-                        switch(reserva.estado) {
-                            case 'aprobada':
-                                backgroundColor = '#10b981';
-                                color = 'white';
-                                break;
-                            case 'pendiente':
-                                backgroundColor = '#f59e0b';
-                                color = 'white';
-                                break;
-                            case 'cancelada':
-                                backgroundColor = '#6b7280';
-                                color = 'white';
-                                break;
-                            default:
-                                backgroundColor = '#ef4444';
-                                color = 'white';
-                        }
-                        
-                        slot.style.backgroundColor = backgroundColor;
-                        slot.style.color = color;
-                        slot.innerHTML = `
-                            <div class="text-xs">
-                                <div class="font-medium">${reserva.user_name.substring(0, 10)}</div>
-                                <div class="text-xs opacity-75">${reserva.hora_inicio.substring(0, 5)}-${reserva.hora_fin.substring(0, 5)}</div>
-                            </div>
-                        `;
-                    } else {
-                        // Slot libre
-                        slot.style.backgroundColor = '#f8fafc';
-                        slot.style.color = '#64748b';
-                        slot.style.border = '1px solid #e2e8f0';
-                        slot.innerHTML = `
-                            <div class="text-xs">
-                                <div class="text-gray-500">Libre</div>
-                            </div>
-                        `;
-                    }
+                    slot.style.backgroundColor = '#f8fafc';
+                    slot.style.color = '#64748b';
+                    slot.style.border = '1px solid #e2e8f0';
+                    slot.innerHTML = `
+                        <div class="text-xs">
+                            <div class="text-gray-500">Libre</div>
+                        </div>
+                    `;
                 });
             }
             
@@ -387,36 +412,53 @@
                 // Actualizar nombre del aula inmediatamente
                 if (this.value && aulasData[this.value]) {
                     nombreAulaActual.textContent = aulasData[this.value];
+                } else {
+                    nombreAulaActual.textContent = 'Selecciona un aula';
                 }
+                // Aplicar filtros con la nueva selección
                 aplicarFiltrosCalendario();
             });
             
-            filtroFecha.addEventListener('change', aplicarFiltrosCalendario);
-            
-            // Mejorar visualización de slots
-            const slots = document.querySelectorAll('.calendario-slot');
-            slots.forEach(slot => {
-                slot.addEventListener('mouseenter', function() {
-                    this.style.transform = 'scale(1.05)';
-                    this.style.zIndex = '10';
-                    this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                });
-                
-                slot.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                    this.style.zIndex = '1';
-                    this.style.boxShadow = 'none';
-                });
+            filtroFecha.addEventListener('change', function() {
+                // Aplicar filtros con la nueva fecha
+                aplicarFiltrosCalendario();
             });
             
             // Inicializar con la primera aula seleccionada
             if (filtroAula.value && aulasData[filtroAula.value]) {
                 nombreAulaActual.textContent = aulasData[filtroAula.value];
+                // Cargar datos iniciales
+                setTimeout(() => {
+                    aplicarFiltrosCalendario();
+                }, 100);
             }
+            
+            // Mejorar visualización de slots
+            function aplicarEfectosHover() {
+                const slots = document.querySelectorAll('.calendario-slot');
+                slots.forEach(slot => {
+                    slot.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.05)';
+                        this.style.zIndex = '10';
+                        this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                    });
+                    
+                    slot.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.zIndex = '1';
+                        this.style.boxShadow = 'none';
+                    });
+                });
+            }
+            
+            // Aplicar efectos iniciales
+            aplicarEfectosHover();
             
             // Actualizar datos cada 60 segundos para reflejar cambios
             setInterval(function() {
-                aplicarFiltrosCalendario();
+                if (filtroAula.value) {
+                    aplicarFiltrosCalendario();
+                }
             }, 60000);
         });
     </script>
