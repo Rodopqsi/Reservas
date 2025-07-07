@@ -66,7 +66,7 @@ class AdminUserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'codigo_profesor' => 'PROF004',
                 'role' => 'profesor',
-                'estado' => 'rechazada',
+                'estado' => 'rechazado',
             ]);
         }
     }

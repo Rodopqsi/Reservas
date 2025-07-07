@@ -25,7 +25,7 @@ class CheckUserStatus
                 
                 $mensaje = match($user->estado) {
                     'pendiente' => 'Tu cuenta está pendiente de aprobación por el administrador.',
-                    'rechazada' => 'Tu cuenta ha sido rechazada. Contacta al administrador.',
+                    'rechazado' => 'Tu cuenta ha sido rechazada. Contacta al administrador.',
                     default => 'Tu cuenta no está activa. Contacta al administrador.'
                 };
                 
