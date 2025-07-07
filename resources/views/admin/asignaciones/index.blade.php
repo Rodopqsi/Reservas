@@ -330,9 +330,6 @@
                     }
                 }
             }
-        });
-    </script>
-            
             if (horaInicio) {
                 const hora = parseInt(horaInicio.split(':')[0]);
                 const horaFinMinima = String(hora + 1).padStart(2, '0') + ':00';

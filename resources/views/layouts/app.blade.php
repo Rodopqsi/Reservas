@@ -17,6 +17,41 @@
         <!-- FontAwesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+        <!-- Tailwind CSS CDN como fallback -->
+        @if(app()->environment('production'))
+            <script src="https://cdn.tailwindcss.com"></script>
+            <style>
+                /* Estilos básicos personalizados */
+                .bg-gray-100 { background-color: #f3f4f6; }
+                .bg-white { background-color: #ffffff; }
+                .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+                .rounded-lg { border-radius: 0.5rem; }
+                .p-6 { padding: 1.5rem; }
+                .text-xl { font-size: 1.25rem; }
+                .font-semibold { font-weight: 600; }
+                .text-gray-800 { color: #1f2937; }
+                .leading-tight { line-height: 1.25; }
+                .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+                .max-w-7xl { max-width: 80rem; }
+                .mx-auto { margin-left: auto; margin-right: auto; }
+                .grid { display: grid; }
+                .gap-6 { gap: 1.5rem; }
+                .text-3xl { font-size: 1.875rem; }
+                .font-bold { font-weight: 700; }
+                .text-blue-600 { color: #2563eb; }
+                .text-green-600 { color: #16a34a; }
+                .text-yellow-600 { color: #d97706; }
+                .text-gray-600 { color: #4b5563; }
+                .btn { padding: 0.75rem 1.5rem; border-radius: 0.375rem; font-weight: 500; text-decoration: none; display: inline-block; text-align: center; transition: all 0.2s; }
+                .btn-blue { background-color: #3b82f6; color: white; }
+                .btn-blue:hover { background-color: #2563eb; }
+                .btn-gray { background-color: #6b7280; color: white; }
+                .btn-gray:hover { background-color: #4b5563; }
+                .btn-green { background-color: #10b981; color: white; }
+                .btn-green:hover { background-color: #059669; }
+            </style>
+        @endif
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>

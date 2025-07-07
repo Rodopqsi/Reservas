@@ -22,7 +22,56 @@
                             {{ session('success') }}
                         </div>
                     @endif
-
+                    <!-- Herramientas de gestión masiva -->
+                        <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+                            <h4 class="text-sm font-medium text-yellow-900 mb-4">Gestión Masiva de Asignaciones</h4>
+                            
+                            <form method="POST" action="{{ route('admin.asignaciones.destroy') }}" class="space-y-4" onsubmit="return confirm('¿Está seguro de eliminar estas asignaciones? Esta acción no se puede deshacer.')">
+                                @csrf
+                                @method('DELETE')
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div>
+                                        <label for="delete_user_id" class="block text-sm font-medium text-gray-700">Profesor</label>
+                                        <select name="user_id" id="delete_user_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
+                                            <option value="">Seleccionar profesor</option>
+                                            @foreach($asignaciones->unique('user_id') as $asignacion)
+                                                <option value="{{ $asignacion->user_id }}">{{ $asignacion->user->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="delete_aula_id" class="block text-sm font-medium text-gray-700">Aula</label>
+                                        <select name="aula_id" id="delete_aula_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
+                                            <option value="">Seleccionar aula</option>
+                                            @foreach($asignaciones->unique('aula_id') as $asignacion)
+                                                <option value="{{ $asignacion->aula_id }}">{{ $asignacion->aula->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="delete_fecha_inicio" class="block text-sm font-medium text-gray-700">Desde</label>
+                                        <input type="date" name="fecha_inicio" id="delete_fecha_inicio" value="{{ date('Y-m-d') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="delete_fecha_fin" class="block text-sm font-medium text-gray-700">Hasta</label>
+                                        <input type="date" name="fecha_fin" id="delete_fecha_fin" value="{{ date('Y-m-d', strtotime('+1 month')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-end">
+                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
+                                        Eliminar Asignaciones
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="mt-6">
+                            {{ $asignaciones->links() }}
+                        </div>
                     @if($asignaciones->count() > 0)
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -106,57 +155,8 @@
                         </div>
 
                         <!-- Paginación -->
-                        <div class="mt-6">
-                            {{ $asignaciones->links() }}
-                        </div>
+                        
 
-                        <!-- Herramientas de gestión masiva -->
-                        <div class="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-                            <h4 class="text-sm font-medium text-yellow-900 mb-4">Gestión Masiva de Asignaciones</h4>
-                            
-                            <form method="POST" action="{{ route('admin.asignaciones.destroy') }}" class="space-y-4" onsubmit="return confirm('¿Está seguro de eliminar estas asignaciones? Esta acción no se puede deshacer.')">
-                                @csrf
-                                @method('DELETE')
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    <div>
-                                        <label for="delete_user_id" class="block text-sm font-medium text-gray-700">Profesor</label>
-                                        <select name="user_id" id="delete_user_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
-                                            <option value="">Seleccionar profesor</option>
-                                            @foreach($asignaciones->unique('user_id') as $asignacion)
-                                                <option value="{{ $asignacion->user_id }}">{{ $asignacion->user->name }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    
-                                    <div>
-                                        <label for="delete_aula_id" class="block text-sm font-medium text-gray-700">Aula</label>
-                                        <select name="aula_id" id="delete_aula_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
-                                            <option value="">Seleccionar aula</option>
-                                            @foreach($asignaciones->unique('aula_id') as $asignacion)
-                                                <option value="{{ $asignacion->aula_id }}">{{ $asignacion->aula->nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    
-                                    <div>
-                                        <label for="delete_fecha_inicio" class="block text-sm font-medium text-gray-700">Desde</label>
-                                        <input type="date" name="fecha_inicio" id="delete_fecha_inicio" value="{{ date('Y-m-d') }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
-                                    </div>
-                                    
-                                    <div>
-                                        <label for="delete_fecha_fin" class="block text-sm font-medium text-gray-700">Hasta</label>
-                                        <input type="date" name="fecha_fin" id="delete_fecha_fin" value="{{ date('Y-m-d', strtotime('+1 month')) }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-yellow-500 focus:border-yellow-500" required>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex justify-end">
-                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md">
-                                        Eliminar Asignaciones
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
 
                     @else
                         <div class="text-center py-12">

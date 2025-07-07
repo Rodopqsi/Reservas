@@ -120,4 +120,9 @@ Route::get('/debug/reserva/{id}', function ($id) {
     ];
 })->middleware('auth');
 
+// API para calendario en tiempo real
+Route::get('/api/calendario-data', [CalendarioController::class, 'obtenerDatosJson'])
+    ->name('api.calendario.data')
+    ->middleware('auth');
+
 require __DIR__.'/auth.php';

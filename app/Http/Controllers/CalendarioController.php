@@ -318,4 +318,50 @@ class CalendarioController extends Controller
             'timestamp' => now()->timestamp
         ]);
     }
+    
+    public function obtenerDatosJson(Request $request)
+    {
+        $fecha = $request->get('fecha', now()->format('Y-m-d'));
+        $aulaId = $request->get('aula');
+        
+        // Obtener aulas
+        $aulasQuery = Aula::where('activo', true);
+        if ($aulaId) {
+            $aulasQuery->where('id', $aulaId);
+        }
+        $aulas = $aulasQuery->get();
+        
+        // Obtener reservas del día
+        $reservasQuery = Reserva::where('fecha', $fecha)
+            ->where('estado', 'aprobada')
+            ->with(['user', 'aula']);
+            
+        if ($aulaId) {
+            $reservasQuery->where('aula_id', $aulaId);
+        }
+        
+        $reservas = $reservasQuery->get();
+        
+        // Formatear datos para el calendario
+        $reservasFormateadas = $reservas->map(function($reserva) {
+            $horaInicio = Carbon::parse($reserva->hora_inicio);
+            return [
+                'aula_id' => $reserva->aula_id,
+                'hora' => $horaInicio->hour,
+                'hora_inicio' => $horaInicio->format('H:i'),
+                'hora_fin' => Carbon::parse($reserva->hora_fin)->format('H:i'),
+                'profesor_nombre' => $reserva->user->name,
+                'motivo' => $reserva->motivo,
+                'estado' => $reserva->estado
+            ];
+        });
+        
+        return response()->json([
+            'success' => true,
+            'fecha' => $fecha,
+            'aulas' => $aulas,
+            'reservas' => $reservasFormateadas,
+            'timestamp' => now()->timestamp
+        ]);
+    }
 }

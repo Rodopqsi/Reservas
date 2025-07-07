@@ -259,13 +259,13 @@
                                                 });
                                             @endphp
                                             <div class="slot-cell modern-slot" 
-                                                 data-fecha="{{ $dia['fecha'] }}"
-                                                 data-hora-inicio="{{ $horario['inicio'] }}"
-                                                 data-hora-fin="{{ $horario['fin'] }}"
-                                                 data-aula-id="{{ $aulaSeleccionada->id }}"
-                                                 data-horario-index="{{ $horarioIndex }}"
-                                                 data-dia-index="{{ $diaIndex }}"
-                                                 data-disponible="{{ $reserva ? 'false' : 'true' }}">
+                                                    data-fecha="{{ $dia['fecha'] }}"
+                                                    data-hora-inicio="{{ $horario['inicio'] }}"
+                                                    data-hora-fin="{{ $horario['fin'] }}"
+                                                    data-aula-id="{{ $aulaSeleccionada->id }}"
+                                                    data-horario-index="{{ $horarioIndex }}"
+                                                    data-dia-index="{{ $diaIndex }}"
+                                                    data-disponible="{{ $reserva ? 'false' : 'true' }}">
                                                 @if($reserva)
                                                     @php
                                                         $esAsignacion = str_contains($reserva->observaciones ?? '', 'Asignación administrativa');
@@ -323,106 +323,7 @@
                             </div>
                         </div>
 
-                        <!-- Vista móvil y tablet ultra moderna -->
-                        <div class="lg:hidden">
-                            <div class="space-y-6 p-4">
-                                @foreach($diasSemana as $dia)
-                                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/30">
-                                        <!-- Header del día -->
-                                        <div class="bg-gradient-to-r from-slate-800 to-slate-700 text-white p-5">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="text-xl font-bold">{{ $dia['nombre'] }}</div>
-                                                    <div class="text-sm opacity-90">{{ $dia['numero'] }} {{ $dia['mes'] }}</div>
-                                                </div>
-                                                <div class="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center border border-white/20">
-                                                    <i class="fas fa-calendar-day text-lg"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Horarios del día -->
-                                        <div class="divide-y divide-slate-100">
-                                            @foreach($horarios as $horario)
-                                                @php
-                                                    $reserva = $reservas->first(function($r) use ($dia, $horario) {
-                                                        $fechaReserva = $r->fecha instanceof \Carbon\Carbon ? $r->fecha->format('Y-m-d') : $r->fecha;
-                                                        $horaInicioReserva = $r->hora_inicio instanceof \Carbon\Carbon ? $r->hora_inicio->format('H:i:s') : $r->hora_inicio;
-                                                        $horaFinReserva = $r->hora_fin instanceof \Carbon\Carbon ? $r->hora_fin->format('H:i:s') : $r->hora_fin;
-                                                        
-                                                        return $fechaReserva == $dia['fecha'] && 
-                                                               $horaInicioReserva <= $horario['inicio'] && 
-                                                               $horaFinReserva > $horario['inicio'];
-                                                    });
-                                                @endphp
-                                                <div class="p-4 cursor-pointer transition-all duration-300 hover:bg-slate-50 slot-cell"
-                                                     data-fecha="{{ $dia['fecha'] }}"
-                                                     data-hora-inicio="{{ $horario['inicio'] }}"
-                                                     data-hora-fin="{{ $horario['fin'] }}"
-                                                     data-aula-id="{{ $aulaSeleccionada->id }}"
-                                                     data-horario-index="{{ $loop->parent->index }}"
-                                                     data-dia-index="{{ $loop->index }}"
-                                                     data-disponible="{{ $reserva ? 'false' : 'true' }}">
-                                                    <div class="flex items-center space-x-4">
-                                                        <!-- Horario -->
-                                                        <div class="w-20 text-center bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl p-3 shadow-sm">
-                                                            <div class="text-sm font-bold text-slate-800">{{ substr($horario['display'], 0, 5) }}</div>
-                                                            <div class="text-xs text-slate-500">{{ substr($horario['display'], 8, 5) }}</div>
-                                                        </div>
-                                                        
-                                                        <!-- Contenido -->
-                                                        <div class="flex-1">
-                                                            @if($reserva)
-                                                                @php
-                                                                    $esAsignacion = str_contains($reserva->observaciones ?? '', 'Asignación administrativa');
-                                                                    $colorClass = match($reserva->estado) {
-                                                                        'aprobada' => 'from-emerald-400 to-emerald-600',
-                                                                        'pendiente' => 'from-amber-400 to-amber-600',
-                                                                        'cancelada' => 'from-slate-400 to-slate-600',
-                                                                        'rechazada' => 'from-rose-400 to-rose-600',
-                                                                        default => 'from-slate-400 to-slate-600'
-                                                                    };
-                                                                @endphp
-                                                                <div class="rounded-2xl bg-gradient-to-r {{ $colorClass }} text-white p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                                                                     onclick="event.stopPropagation(); showReservaDetails({{ $reserva->id }})">
-                                                                    <div class="flex items-center justify-between">
-                                                                        <div class="flex-1">
-                                                                            <div class="font-bold">{{ $reserva->user->name }}</div>
-                                                                            <div class="text-sm opacity-90">{{ $reserva->motivo }}</div>
-                                                                        </div>
-                                                                        <div class="text-right">
-                                                                            @if($esAsignacion)
-                                                                                <i class="fas fa-calendar-check text-sm" title="Asignación"></i>
-                                                                            @endif
-                                                                            @if($reserva->estado == 'cancelada')
-                                                                                <i class="fas fa-ban text-sm ml-1" title="Cancelada"></i>
-                                                                            @elseif($reserva->estado == 'pendiente')
-                                                                                <i class="fas fa-clock text-sm ml-1" title="Pendiente"></i>
-                                                                            @elseif($reserva->estado == 'rechazada')
-                                                                                <i class="fas fa-times text-sm ml-1" title="Rechazada"></i>
-                                                                            @else
-                                                                                <i class="fas fa-check text-sm ml-1" title="Aprobada"></i>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @else
-                                                                <div class="rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 border-2 border-blue-400 text-white p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 slot-content">
-                                                                    <div class="flex items-center justify-center">
-                                                                        <i class="fas fa-plus text-lg mr-2"></i>
-                                                                        <span class="font-medium">Disponible</span>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+                        
                     </div>
                     </div>
                 </div>
